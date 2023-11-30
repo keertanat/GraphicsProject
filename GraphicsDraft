@@ -1,7 +1,7 @@
 import java.util.Scanner;
 
-Sana's part
-Keertana's part (very rough -- included point system and question/answer arrays):
+/* Sana's part */
+/* Keertana's part (very rough -- included point system and question/answer arrays): */
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
