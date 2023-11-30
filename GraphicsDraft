@@ -296,6 +296,7 @@ public class Underwater extends JFrame {
 }
 
 example underwater scene (uses 2 d graphics): 
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
