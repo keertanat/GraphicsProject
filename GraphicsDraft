@@ -1,5 +1,121 @@
 import java.util.Scanner;
 
 Sana's part
-Keertana's part
+Keertana's part (very rough):
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Timer;
+import java.util.TimerTask;
+
+public class PointSystemGame {
+    private static int score = 0;
+    private static int timerSeconds = 60;
+    private static Timer mainTimer = new Timer();
+    private static boolean gameOver = false;
+    private static JFrame frame;
+    private static JLabel questionLabel;
+    private static JButton[] answerButtons;
+
+    public static void main(String[] args) {
+    	SwingUtilities.invokeLater(() -> initializeGUI());
+
+        // Schedule the main game timer
+        mainTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                endGame();
+            }
+        }, timerSeconds * 1000);
+
+        // Start the first question
+        askQuestion();
+    }
+
+    private static void initializeGUI() {
+        frame = new JFrame("Point System Game");
+        frame.setSize(400, 200);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setLayout(new BorderLayout());
+
+        questionLabel = new JLabel("Welcome to the Point System Game!", SwingConstants.CENTER);
+        frame.add(questionLabel, BorderLayout.NORTH);
+
+        JPanel buttonPanel = new JPanel(new GridLayout(2, 2));
+        answerButtons = new JButton[4];
+
+        for (int i = 0; i < answerButtons.length; i++) {
+            answerButtons[i] = new JButton();
+            buttonPanel.add(answerButtons[i]);
+            int finalI = i;
+            answerButtons[i].addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    handleAnswerChoice(finalI);
+                }
+            });
+        }
+
+        frame.add(buttonPanel, BorderLayout.CENTER);
+
+        frame.setVisible(true);
+    }
+
+    private static void askQuestion() {
+        // Create a new Timer for each question
+        Timer questionTimer = new Timer();
+
+        // Simulate asking a question
+        questionLabel.setText("Question: What is the capital of France?");
+        answerButtons[0].setText("A) Paris");
+        answerButtons[1].setText("B) Berlin");
+        answerButtons[2].setText("C) Rome");
+        answerButtons[3].setText("D) Madrid");
+
+        // Schedule the question timer
+        questionTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                System.out.println("Time's up! No points awarded.");
+                askQuestion();
+            }
+        }, 10 * 1000); // 10 seconds
+    }
+
+    private static void handleAnswerChoice(int choiceIndex) {
+        String[] choices = {"A", "B", "C", "D"};
+        String userAnswer = choices[choiceIndex];
+
+        // Check the user's answer
+        if (userAnswer.equalsIgnoreCase("A")) {
+            // Correct answer
+            JOptionPane.showMessageDialog(frame, "Correct! You earned 2 points.");
+            score += 2;
+            if (score < 10) {
+                askQuestion(); // Move to the next question
+            } else {
+                endGame(); // End the game as the player reached 10 points
+            }
+        } else {
+            // Wrong answer
+            JOptionPane.showMessageDialog(frame, "Wrong answer. No points awarded.");
+            askQuestion(); // Move to the next question
+        }
+    }
+
+    private static void endGame() {
+        gameOver = true;
+        mainTimer.cancel(); // Stop the main game timer
+
+        if (score >= 10) {
+            JOptionPane.showMessageDialog(frame, "Congratulations! You won with " + score + " points.");
+        } else {
+            JOptionPane.showMessageDialog(frame, "Game over! You scored " + score + " points. Try again!");
+        }
+
+        System.exit(0); // Close the application
+    }
+}
+
 Sona's part
