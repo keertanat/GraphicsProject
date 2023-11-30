@@ -1,41 +1,55 @@
 import java.util.Scanner;
 
 Sana's part
-Keertana's part (very rough):
+Keertana's part (very rough -- included point system and question/answer arrays):
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class PointSystemGame {
+public class PointsandQuestions {
     private static int score = 0;
     private static int timerSeconds = 60;
-    private static Timer mainTimer = new Timer();
-    private static boolean gameOver = false;
+    private static Timer gameTimer;
     private static JFrame frame;
     private static JLabel questionLabel;
     private static JButton[] answerButtons;
 
+    // List of questions and answers
+    private static ArrayList<QuestionAndAnswer> questionsAndAnswers = new ArrayList<>();
+    private static int currentQuestionIndex = 0;
+
     public static void main(String[] args) {
-    	SwingUtilities.invokeLater(() -> initializeGUI());
+        initializeQuestions(); // Initialize the list of questions
+
+        SwingUtilities.invokeLater(() -> initializeGUI());
 
         // Schedule the main game timer
-        mainTimer.schedule(new TimerTask() {
+        gameTimer = new Timer();
+        gameTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
                 endGame();
             }
-        }, timerSeconds * 1000);
+        }, timerSeconds * 1000, timerSeconds * 1000); // Schedule repeated task
 
         // Start the first question
         askQuestion();
     }
 
+    private static void initializeQuestions() {
+        // Add questions and answers to the list
+        questionsAndAnswers.add(new QuestionAndAnswer("What is the capital of France?", "A) Paris", "B) Berlin", "C) Rome", "D) Madrid", "A"));
+        questionsAndAnswers.add(new QuestionAndAnswer("Which planet is known as the Red Planet?", "A) Venus", "B) Mars", "C) Jupiter", "D) Saturn", "B"));
+        // Add more questions as needed
+    }
+
     private static void initializeGUI() {
         frame = new JFrame("Point System Game");
-        frame.setSize(400, 200);
+        frame.setSize(480, 640);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
 
@@ -63,58 +77,94 @@ public class PointSystemGame {
     }
 
     private static void askQuestion() {
-        // Create a new Timer for each question
-        Timer questionTimer = new Timer();
+        SwingUtilities.invokeLater(() -> {
+            // Check if there are more questions
+            if (currentQuestionIndex < questionsAndAnswers.size()) {
+                QuestionAndAnswer currentQuestion = questionsAndAnswers.get(currentQuestionIndex);
+                questionLabel.setText("Question: " + currentQuestion.getQuestion());
 
-        // Simulate asking a question
-        questionLabel.setText("Question: What is the capital of France?");
-        answerButtons[0].setText("A) Paris");
-        answerButtons[1].setText("B) Berlin");
-        answerButtons[2].setText("C) Rome");
-        answerButtons[3].setText("D) Madrid");
+                String[] options = currentQuestion.getOptions();
+                for (int i = 0; i < answerButtons.length; i++) {
+                    answerButtons[i].setText(options[i]);
+                }
 
-        // Schedule the question timer
-        questionTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                System.out.println("Time's up! No points awarded.");
-                askQuestion();
+                // Reset the timer for each question
+                gameTimer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        System.out.println("Time's up! No points awarded.");
+                        askQuestion();
+                    }
+                }, 10 * 1000); // 10 seconds
+
+                currentQuestionIndex++;
+            } else {
+                endGame(); // No more questions, end the game
             }
-        }, 10 * 1000); // 10 seconds
+        });
     }
 
     private static void handleAnswerChoice(int choiceIndex) {
-        String[] choices = {"A", "B", "C", "D"};
-        String userAnswer = choices[choiceIndex];
+        QuestionAndAnswer currentQuestion = questionsAndAnswers.get(currentQuestionIndex - 1);
+        String userAnswer = currentQuestion.getOptions()[choiceIndex].substring(0, 1);
 
         // Check the user's answer
-        if (userAnswer.equalsIgnoreCase("A")) {
+        if (userAnswer.equalsIgnoreCase(currentQuestion.getCorrectAnswer())) {
             // Correct answer
             JOptionPane.showMessageDialog(frame, "Correct! You earned 2 points.");
             score += 2;
-            if (score < 10) {
+            if (currentQuestionIndex < questionsAndAnswers.size()) {
                 askQuestion(); // Move to the next question
             } else {
-                endGame(); // End the game as the player reached 10 points
+                endGame(); // End the game as all questions have been answered
             }
         } else {
             // Wrong answer
             JOptionPane.showMessageDialog(frame, "Wrong answer. No points awarded.");
-            askQuestion(); // Move to the next question
+            if (currentQuestionIndex < questionsAndAnswers.size()) {
+                askQuestion(); // Move to the next question
+            } else {
+                endGame(); // End the game as all questions have been answered
+            }
         }
     }
 
     private static void endGame() {
-        gameOver = true;
-        mainTimer.cancel(); // Stop the main game timer
+        gameTimer.cancel(); // Stop the main game timer
 
-        if (score >= 10) {
-            JOptionPane.showMessageDialog(frame, "Congratulations! You won with " + score + " points.");
-        } else {
-            JOptionPane.showMessageDialog(frame, "Game over! You scored " + score + " points. Try again!");
+        SwingUtilities.invokeLater(() -> {
+            if (score >= 10) {
+                JOptionPane.showMessageDialog(frame, "Congratulations! You won with " + score + " points.");
+            } else {
+                JOptionPane.showMessageDialog(frame, "Game over! You scored " + score + " points. Try again!");
+            }
+
+            System.exit(0); // Close the application
+        });
+    }
+
+    private static class QuestionAndAnswer {
+        private String question;
+        private String[] options;
+        private String correctAnswer;
+
+        public QuestionAndAnswer(String question, String optionA, String optionB, String optionC, String optionD, String correctAnswer) {
+            this.question = question;
+            this.options = new String[]{optionA, optionB, optionC, optionD};
+            this.correctAnswer = correctAnswer;
         }
 
-        System.exit(0); // Close the application
+        public String getQuestion() {
+            return question;
+        }
+
+        public String[] getOptions() {
+            return options;
+        }
+
+        public String getCorrectAnswer() {
+            return correctAnswer;
+        }
     }
 }
 
