@@ -1,6 +1,113 @@
 import java.util.Scanner;
 
 /* Sana's part */
+import javax.swing.*;
+import java.awt.*;
+
+public class MathGameGUI extends JFrame {
+    private MathGame mathGame;
+    private JLabel equationLabel;
+    private JButton[] optionButtons;
+    private JPanel equationBubble;
+    private JPanel answerBubblesPanel;
+
+    public MathGameGUI() {
+        mathGame = new MathGame();
+
+        equationLabel = new JLabel();
+        optionButtons = new JButton[3];
+        equationBubble = createBubblePanel();
+        answerBubblesPanel = createAnswerBubblesPanel();
+
+        setupUI();
+        displayNextEquation();
+    }
+
+    private void setupUI() {
+        setTitle("Underwater Math Game");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(400, 300);
+        setLayout(new GridLayout(4, 1));
+
+        add(equationBubble);
+
+        for (int i = 0; i < optionButtons.length; i++) {
+            optionButtons[i] = new JButton();
+            optionButtons[i].addActionListener(e -> handleOptionClick(i));
+            add(optionButtons[i]);
+        }
+
+        add(answerBubblesPanel);
+    }
+
+    private JPanel createBubblePanel() {
+        JPanel bubblePanel = new JPanel();
+        bubblePanel.setBackground(Color.CYAN);
+        bubblePanel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
+        bubblePanel.setLayout(new FlowLayout(FlowLayout.CENTER));
+        bubblePanel.add(equationLabel);
+        return bubblePanel;
+    }
+
+    private JPanel createAnswerBubblesPanel() {
+        JPanel answerBubblesPanel = new JPanel();
+        answerBubblesPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 5));
+        return answerBubblesPanel;
+    }
+
+    private void displayNextEquation() {
+        MathEquation currentEquation = mathGame.getCurrentEquation();
+        equationLabel.setText(currentEquation.getOperand1() + " * " + currentEquation.getOperand2());
+
+        int[] options = currentEquation.getOptions();
+        for (int i = 0; i < optionButtons.length; i++) {
+            optionButtons[i].setText(String.valueOf(options[i]));
+        }
+
+        createAnswerBubbles(currentEquation.getAnswer());
+    }
+
+    private void createAnswerBubbles(int correctAnswer) {
+        answerBubblesPanel.removeAll();
+
+        for (int i = 0; i < 3; i++) {
+            JPanel answerBubble = createBubblePanel();
+            JLabel answerLabel = new JLabel(String.valueOf(correctAnswer));
+            answerBubble.add(answerLabel);
+            answerBubblesPanel.add(answerBubble);
+        }
+
+        answerBubblesPanel.revalidate();
+        answerBubblesPanel.repaint();
+    }
+
+    private void handleOptionClick(int selectedOptionIndex) {
+        MathEquation currentEquation = mathGame.getCurrentEquation();
+        int selectedOption = currentEquation.getOptions()[selectedOptionIndex];
+
+        if (selectedOption == currentEquation.getAnswer()) {
+            JOptionPane.showMessageDialog(this, "Correct!");
+        } else {
+            JOptionPane.showMessageDialog(this, "Incorrect. The correct answer is " + currentEquation.getAnswer());
+        }
+
+        mathGame.moveToNextEquation();
+        if (mathGame.getCurrentEquation() != null) {
+            displayNextEquation();
+        } else {
+            // End of the game
+            JOptionPane.showMessageDialog(this, "Game Over!");
+            System.exit(0);
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            new MathGameGUI().setVisible(true);
+        });
+    }
+}
+
 /* Keertana's part (very rough -- included point system and question/answer arrays): */
 import javax.swing.*;
 import java.awt.*;
