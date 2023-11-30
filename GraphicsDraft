@@ -170,7 +170,132 @@ public class PointsandQuestions {
 
 Sona's part
 
-example underwater scene: 
+example underwater scene:
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Random;
+
+public class Underwater extends JFrame {
+	private final JPanel underwaterPanel;
+
+	public Underwater() {
+		setTitle("Randomized Underwater Scene");
+		setSize(800, 600);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+		underwaterPanel = new BubblePanel();
+		underwaterPanel.setBackground(new Color(0, 128, 255)); // Blue color for water
+
+		JPanel oceanFloorPanel = new JPanel();
+		oceanFloorPanel.setBackground(new Color(194, 178, 128)); // Sand color
+
+		setLayout(new BorderLayout());
+
+		add(underwaterPanel, BorderLayout.CENTER);
+		add(oceanFloorPanel, BorderLayout.SOUTH);
+
+		setVisible(true);
+/*
+		for (int i = 0; i < 5; i++) {
+			oceanFloorPanel.add(new JLabel("SSSSSSSSSSSS"));
+		}
+*/
+		Timer timer = new Timer(100, new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				addBubble();
+				((BubblePanel) underwaterPanel).updateBubbles();
+				underwaterPanel.repaint(); // Repaint the panel to show the updated bubbles
+			}
+		});
+		timer.start();
+	}
+
+	private void addBubble() {
+		Random random = new Random();
+		int x = random.nextInt(underwaterPanel.getWidth());
+		int y = underwaterPanel.getHeight(); // Start from the bottom of the panel
+
+		((BubblePanel) underwaterPanel).addBubble(x, y);
+	}
+
+	public static void main(String[] args) {
+		SwingUtilities.invokeLater(Underwater::new);
+	}
+
+	private class BubblePanel extends JPanel {
+		private final List<Bubble> bubbles;
+
+		public BubblePanel() {
+			this.bubbles = new ArrayList<>();
+		}
+
+		public void addBubble(int x, int y) {
+			bubbles.add(new Bubble(x, y));
+		}
+
+		public void updateBubbles() {
+			Iterator<Bubble> iterator = bubbles.iterator();
+			while (iterator.hasNext()) {
+				Bubble bubble = iterator.next();
+				bubble.rise();
+				if (bubble.getY() + bubble.getSize() < 0) {
+					// Remove the bubble when it goes above the panel
+					iterator.remove();
+				}
+			}
+		}
+
+		@Override
+		protected void paintComponent(Graphics g) {
+			super.paintComponent(g);
+
+			for (Bubble bubble : bubbles) {
+				int size = bubble.getSize();
+				int x = bubble.getX();
+				int y = bubble.getY();
+
+				g.setColor(Color.WHITE);
+				g.fillOval(x, y, size, size);
+			}
+		}
+	}
+
+	private class Bubble {
+		private int x;
+		private int y;
+		private int size;
+
+		public Bubble(int x, int y) {
+			this.x = x;
+			this.y = y;
+			this.size = 20; // You can adjust the size of the bubble
+		}
+
+		public int getX() {
+			return x;
+		}
+
+		public int getY() {
+			return y;
+		}
+
+		public int getSize() {
+			return size;
+		}
+
+		public void rise() {
+			y -= 5; // Adjust the rising speed
+		}
+	}
+}
+
+example underwater scene (uses 2 d graphics): 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
