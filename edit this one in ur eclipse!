@@ -1,0 +1,236 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
+
+public class PointsandQuestions {
+    private static int score = 0;
+    private static int timerSeconds = 60;
+    private static Timer gameTimer;
+    private static JFrame frame;
+    private static JLabel questionLabel;
+    private static JButton[] answerButtons;
+
+    // List of questions and answers
+    private static ArrayList<QuestionAndAnswer> questionsAndAnswers = new ArrayList<>();
+    private static int currentQuestionIndex = 0;
+
+    public static void main(String[] args) {
+        initializeQuestions(); // Initialize the list of questions
+
+        SwingUtilities.invokeLater(() -> initializeGUI());
+
+        // Schedule the main game timer
+        gameTimer = new Timer();
+        gameTimer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                endGame();
+            }
+        }, timerSeconds * 1000, timerSeconds * 1000); // Schedule repeated task
+
+        // Start the first question
+        askQuestion();
+    }
+
+    private static void initializeQuestions() {
+        // Add questions and answers to the list
+        questionsAndAnswers.add(new QuestionAndAnswer("What is the capital of France?", "A) Paris", "B) Berlin", "C) Rome", "D) Madrid", "A"));
+        questionsAndAnswers.add(new QuestionAndAnswer("Which planet is known as the Red Planet?", "A) Venus", "B) Mars", "C) Jupiter", "D) Saturn", "B"));
+        // Add more questions as needed
+    }
+
+    private static void initializeGUI() {
+		frame = new JFrame("Point System Game");
+		frame.setSize(480, 640);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setLayout(new BorderLayout());
+
+		QuestionPanel questionPanel = new QuestionPanel(); // Create the QuestionPanel instance
+		frame.add(new QuestionPanel(), BorderLayout.CENTER);
+
+//		questionLabel = new JLabel("Welcome to the Point System Game!", SwingConstants.CENTER);
+	//	frame.add(questionLabel, BorderLayout.NORTH);
+
+		JPanel buttonPanel = new JPanel(new GridLayout(2, 2));
+		answerButtons = new JButton[4];
+
+		for (int i = 0; i < answerButtons.length; i++) {
+			answerButtons[i] = new JButton();
+			buttonPanel.add(answerButtons[i]);
+			int finalI = i;
+			answerButtons[i].addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					handleAnswerChoice(finalI);
+				}
+			});
+		}
+
+		frame.add(buttonPanel, BorderLayout.SOUTH);
+
+		frame.setVisible(true);
+    }
+
+    private static class QuestionPanel extends JPanel {
+        private String questionText;
+        private int textY;
+        private int circleY;
+
+        public QuestionPanel() {
+            // Set the background color of the panel
+            setBackground(Color.CYAN);
+            textY = getHeight() / 2; // Initialize the text position at the center
+            circleY = getHeight() / 2; // Initialize the circle position at the center
+        }
+
+        public void setQuestion(QuestionAndAnswer question) {
+            this.questionText = question.getQuestion();
+            textY = getHeight() / 2; // Reset the text position to the center
+            circleY = getHeight() / 2; // Reset the circle position to the center
+            repaint(); // Repaint the panel to reflect the changes
+            startTextAnimation(); // Start the animation
+        }
+
+        private void startTextAnimation() {
+            Timer timer = new Timer();
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    textY -= 5; // Adjust the floating speed
+                    circleY -= 5; // Adjust the circle's position along with the text
+                    repaint();
+                    if (textY + getFontMetrics(getFont()).getAscent() < 0) {
+                        timer.cancel(); // Stop the timer when text goes above the panel
+                    }
+                }
+            }, 0, 100); // Schedule task to run every 100 milliseconds
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+
+            int panelWidth = getWidth();
+            int panelHeight = getHeight();
+
+            // Calculate the center coordinates
+            int centerX = panelWidth / 2;
+
+            // Calculate the circle size
+            int circleSize = Math.min(panelWidth, panelHeight) / 2;
+
+            // Draw blue circle
+            g.setColor(Color.WHITE);
+            g.fillOval(centerX - circleSize / 2, circleY - circleSize / 2, circleSize, circleSize);
+          
+            g.setColor(new Color(194, 178, 128)); // Sand color
+            g.fillRect(0, panelHeight - 20, panelWidth, 20);
+
+            // Draw question text centered within the circle
+            g.setColor(Color.BLUE.brighter());
+            FontMetrics fontMetrics = g.getFontMetrics();
+            int textWidth = fontMetrics.stringWidth(questionText);
+            int textX = centerX - textWidth / 2;
+            g.drawString(questionText, textX, textY);
+        }
+    }
+
+
+    private static void askQuestion() {
+        SwingUtilities.invokeLater(() -> {
+            // Check if there are more questions
+            if (currentQuestionIndex < questionsAndAnswers.size()) {
+                QuestionAndAnswer currentQuestion = questionsAndAnswers.get(currentQuestionIndex);
+               // questionLabel.setText("Question: " + currentQuestion.getQuestion());
+              //  frame.remove(0); // Remove the existing QuestionPanel
+                //frame.add(new QuestionPanel(), BorderLayout.NORTH);
+                ((QuestionPanel) frame.getContentPane().getComponent(0)).setQuestion(currentQuestion);
+
+                String[] options = currentQuestion.getOptions();
+                for (int i = 0; i < answerButtons.length; i++) {
+                    answerButtons[i].setText(options[i]);
+                }
+
+                // Reset the timer for each question
+                gameTimer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        System.out.println("Time's up! No points awarded.");
+                        askQuestion();
+                    }
+                }, 10 * 1000); // 10 seconds
+
+                currentQuestionIndex++;
+            } else {
+                endGame(); // No more questions, end the game
+            }
+        });
+    }
+
+    private static void handleAnswerChoice(int choiceIndex) {
+        QuestionAndAnswer currentQuestion = questionsAndAnswers.get(currentQuestionIndex - 1);
+        String userAnswer = currentQuestion.getOptions()[choiceIndex].substring(0, 1);
+
+        // Check the user's answer
+        if (userAnswer.equalsIgnoreCase(currentQuestion.getCorrectAnswer())) {
+            // Correct answer
+            JOptionPane.showMessageDialog(frame, "Correct! You earned 2 points.");
+            score += 2;
+            if (currentQuestionIndex < questionsAndAnswers.size()) {
+                askQuestion(); // Move to the next question
+            } else {
+                endGame(); // End the game as all questions have been answered
+            }
+        } else {
+            // Wrong answer
+            JOptionPane.showMessageDialog(frame, "Wrong answer. No points awarded.");
+            if (currentQuestionIndex < questionsAndAnswers.size()) {
+                askQuestion(); // Move to the next question
+            } else {
+                endGame(); // End the game as all questions have been answered
+            }
+        }
+    }
+
+    private static void endGame() {
+        gameTimer.cancel(); // Stop the main game timer
+
+        SwingUtilities.invokeLater(() -> {
+            if (score >= 10) {
+                JOptionPane.showMessageDialog(frame, "Congratulations! You won with " + score + " points.");
+            } else {
+                JOptionPane.showMessageDialog(frame, "Game over! You scored " + score + " points. Try again!");
+            }
+
+            System.exit(0); // Close the application
+        });
+    }
+
+    private static class QuestionAndAnswer {
+        private String question;
+        private String[] options;
+        private String correctAnswer;
+
+        public QuestionAndAnswer(String question, String optionA, String optionB, String optionC, String optionD, String correctAnswer) {
+            this.question = question;
+            this.options = new String[]{optionA, optionB, optionC, optionD};
+            this.correctAnswer = correctAnswer;
+        }
+
+        public String getQuestion() {
+            return question;
+        }
+
+        public String[] getOptions() {
+            return options;
+        }
+
+        public String getCorrectAnswer() {
+            return correctAnswer;
+        }
+    }
+}
