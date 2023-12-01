@@ -38,9 +38,16 @@ public class PointsandQuestions {
 
     private static void initializeQuestions() {
         // Add questions and answers to the list
-        questionsAndAnswers.add(new QuestionAndAnswer("What is the capital of France?", "A) Paris", "B) Berlin", "C) Rome", "D) Madrid", "A"));
-        questionsAndAnswers.add(new QuestionAndAnswer("Which planet is known as the Red Planet?", "A) Venus", "B) Mars", "C) Jupiter", "D) Saturn", "B"));
-        // Add more questions as needed
+	        questionsAndAnswers.add(new QuestionAndAnswer("What is 3 x 3?", "A) 6", "B) 27", "C) 9", "D) 8", "C"));
+	        questionsAndAnswers.add(new QuestionAndAnswer("What is 4 x 5?", "A) 30", "B) 40", "C) 24", "D) 20", "D"));
+	        questionsAndAnswers.add(new QuestionAndAnswer("What is 6 x 6?", "A) 30", "B) 36", "C) 12", "D) 60", "B"));
+	        questionsAndAnswers.add(new QuestionAndAnswer("What is 5 x 9?", "A) 54", "B) 45", "C) 50", "D) 40", "B"));
+	        questionsAndAnswers.add(new QuestionAndAnswer("What is 9 x 6?", "A) 60", "B) 45", "C) 54", "D) 48", "C"));
+	        questionsAndAnswers.add(new QuestionAndAnswer("What is 8 x 7?", "A) 48", "B) 54", "C) 58", "D) 56", "D"));
+	        questionsAndAnswers.add(new QuestionAndAnswer("What is 11 x 11?", "A) 121", "B) 110", "C) 120", "D) 111", "A"));
+	        questionsAndAnswers.add(new QuestionAndAnswer("What is 12 x 14?", "A) 124", "B) 160", "C) 168", "D) 148", "C"));
+	        questionsAndAnswers.add(new QuestionAndAnswer("What is 16 x 16?", "A) 306", "B) 196", "C) 236", "D) 256", "D"));
+
     }
 
     private static void initializeGUI() {
