@@ -7,57 +7,57 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class PointsandQuestions {
-    private static int score = 0;
-    private static int timerSeconds = 60;
-    private static Timer gameTimer;
-    private static JFrame frame;
-    private static JButton[] answerButtons;
-    private static JLabel timeLabel;  // Added for displaying time left
-    private static JLabel scoreLabel; // Added for displaying points
-    private static TimerTask questionTimerTask;
+	private static int score = 0;
+	private static int timerSeconds = 60;
+	private static Timer gameTimer;
+	private static JFrame frame;
+	private static JButton[] answerButtons;
+	private static JLabel timeLabel; // Added for displaying time left
+	private static JLabel scoreLabel; // Added for displaying points
+	private static TimerTask questionTimerTask;
 
-    // List of questions and answers
-    private static ArrayList<QuestionAndAnswer> questionsAndAnswers = new ArrayList<>();
-    private static int currentQuestionIndex = 0;
+	// List of questions and answers
+	private static ArrayList<QuestionAndAnswer> questionsAndAnswers = new ArrayList<>();
+	private static int currentQuestionIndex = 0;
 
-    public static void main(String[] args) {
-        initializeQuestions(); // Initialize the list of questions
+	public static void main(String[] args) {
+		initializeQuestions(); // Initialize the list of questions
 
-        SwingUtilities.invokeLater(() -> initializeGUI());
+		SwingUtilities.invokeLater(() -> initializeGUI());
 
-        // Schedule the main game timer
-        gameTimer = new Timer();
-        gameTimer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                timerSeconds--;
-                if (timerSeconds >= 0) {
-                    updateInfoPanel();
-                } else {
-                    endGame();
-                }
-            }
-        }, 0, 1000); // Schedule task to run every 1000 milliseconds (1 second)
+		// Schedule the main game timer
+		gameTimer = new Timer();
+		gameTimer.scheduleAtFixedRate(new TimerTask() {
+			@Override
+			public void run() {
+				timerSeconds--;
+				if (timerSeconds >= 0) {
+					updateInfoPanel();
+				} else {
+					endGame();
+				}
+			}
+		}, 0, 1000); // Schedule task to run every 1000 milliseconds (1 second)
 
-        // Start the first question
-        askQuestion();
-    }
+		// Start the first question
+		askQuestion();
+	}
 
-    private static void initializeQuestions() {
-        // Add questions and answers to the list
-    	questionsAndAnswers.add(new QuestionAndAnswer("What is 3 x 3?", "A) 6", "B) 27", "C) 9", "D) 8", "C"));
-        questionsAndAnswers.add(new QuestionAndAnswer("What is 4 x 5?", "A) 30", "B) 40", "C) 24", "D) 20", "D"));
-        questionsAndAnswers.add(new QuestionAndAnswer("What is 6 x 6?", "A) 30", "B) 36", "C) 12", "D) 60", "B"));
-        questionsAndAnswers.add(new QuestionAndAnswer("What is 5 x 9?", "A) 54", "B) 45", "C) 50", "D) 40", "B"));
-        questionsAndAnswers.add(new QuestionAndAnswer("What is 9 x 6?", "A) 60", "B) 45", "C) 54", "D) 48", "C"));
-        questionsAndAnswers.add(new QuestionAndAnswer("What is 8 x 7?", "A) 48", "B) 54", "C) 58", "D) 56", "D"));
-        questionsAndAnswers.add(new QuestionAndAnswer("What is 11 x 11?", "A) 121", "B) 110", "C) 120", "D) 111", "A"));
-        questionsAndAnswers.add(new QuestionAndAnswer("What is 12 x 14?", "A) 124", "B) 160", "C) 168", "D) 148", "C"));
-        questionsAndAnswers.add(new QuestionAndAnswer("What is 16 x 16?", "A) 306", "B) 196", "C) 236", "D) 256", "D"));
+	private static void initializeQuestions() {
+		// Add questions and answers to the list
+		questionsAndAnswers.add(new QuestionAndAnswer("What is 3 x 3?", "A) 6", "B) 27", "C) 9", "D) 8", "C"));
+		questionsAndAnswers.add(new QuestionAndAnswer("What is 4 x 5?", "A) 30", "B) 40", "C) 24", "D) 20", "D"));
+		questionsAndAnswers.add(new QuestionAndAnswer("What is 6 x 6?", "A) 30", "B) 36", "C) 12", "D) 60", "B"));
+		questionsAndAnswers.add(new QuestionAndAnswer("What is 5 x 9?", "A) 54", "B) 45", "C) 50", "D) 40", "B"));
+		questionsAndAnswers.add(new QuestionAndAnswer("What is 9 x 6?", "A) 60", "B) 45", "C) 54", "D) 48", "C"));
+		questionsAndAnswers.add(new QuestionAndAnswer("What is 8 x 7?", "A) 48", "B) 54", "C) 58", "D) 56", "D"));
+		questionsAndAnswers.add(new QuestionAndAnswer("What is 11 x 11?", "A) 121", "B) 110", "C) 120", "D) 111", "A"));
+		questionsAndAnswers.add(new QuestionAndAnswer("What is 12 x 14?", "A) 124", "B) 160", "C) 168", "D) 148", "C"));
+		questionsAndAnswers.add(new QuestionAndAnswer("What is 16 x 16?", "A) 306", "B) 196", "C) 236", "D) 256", "D"));
 
-    }
+	}
 
-    private static void initializeGUI() {
+	private static void initializeGUI() {
 		frame = new JFrame("Point System Game");
 		frame.setSize(480, 640);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -66,16 +66,13 @@ public class PointsandQuestions {
 		QuestionPanel questionPanel = new QuestionPanel(); // Create the QuestionPanel instance
 		frame.add(new QuestionPanel(), BorderLayout.CENTER);
 
-//		questionLabel = new JLabel("Welcome to the Point System Game!", SwingConstants.CENTER);
-	//	frame.add(questionLabel, BorderLayout.NORTH);
-
 		JPanel infoPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        timeLabel = new JLabel("Time Left: " + timerSeconds + "s");
-        scoreLabel = new JLabel("Points: " + score);
-        infoPanel.add(timeLabel);
-        infoPanel.add(scoreLabel);
-        frame.add(infoPanel, BorderLayout.NORTH);
-        
+		timeLabel = new JLabel("Time Left: " + timerSeconds + "s");
+		scoreLabel = new JLabel("Points: " + score);
+		infoPanel.add(timeLabel);
+		infoPanel.add(scoreLabel);
+		frame.add(infoPanel, BorderLayout.NORTH);
+
 		JPanel buttonPanel = new JPanel(new GridLayout(2, 2));
 		answerButtons = new JButton[4];
 
@@ -94,184 +91,231 @@ public class PointsandQuestions {
 		frame.add(buttonPanel, BorderLayout.SOUTH);
 
 		frame.setVisible(true);
-    }
+	}
 
-    private static class QuestionPanel extends JPanel {
-        private String questionText;
-        private int textY;
-        private int circleY;
-        private Timer animationTimer;
+	private static class QuestionPanel extends JPanel {
+		private String questionText;
+		private int textY;
+		private int circleY;
+		private int fishX;
+		private int fishY;
+		private Timer animationTimer;
 
-        public QuestionPanel() {
-            // Set the background color of the panel
-            setBackground(new Color(0, 128, 255)); // Blue color for water
-            textY = getHeight() / 2; // Initialize the text position at the center
-            circleY = getHeight() / 2; // Initialize the circle position at the center
-        }
+		public QuestionPanel() {
+			setBackground(new Color(0, 128, 255)); // Blue color for water
+			textY = getHeight() / 2;
+			circleY = getHeight() / 2;
+			fishX = getWidth() + 50;
+			fishY = getHeight() - 100;
+		}
 
-        public void setQuestion(QuestionAndAnswer question) {
-            this.questionText = question.getQuestion();
-            textY = getHeight() / 2; // Reset the text position to the center
-            circleY = getHeight() / 2; // Reset the circle position to the center
-            repaint(); // Repaint the panel to reflect the changes
-            startTextAnimation(); // Start the animation
-        }
+		public void setQuestion(QuestionAndAnswer question) {
+			this.questionText = question.getQuestion();
+			textY = getHeight() / 2;
+			circleY = getHeight() / 2;
+			fishX = getWidth() + 50;
+			fishY = getHeight() - 100;
+			repaint();
+			startTextAnimation();
+			startFishAnimation();
+		}
 
-        private void startTextAnimation() {
-            // Cancel the previous animation timer
-            if (animationTimer != null) {
-                animationTimer.cancel();
-            }
+		private void startTextAnimation() {
+			if (animationTimer != null) {
+				animationTimer.cancel();
+			}
 
-            animationTimer = new Timer();
-            animationTimer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    textY -= 2; // Adjust the floating speed
-                    circleY -= 2; // Adjust the circle's position along with the text
-                    repaint();
-                    if (textY + getFontMetrics(getFont()).getAscent() < 0) {
-                        animationTimer.cancel(); // Stop the timer when text goes above the panel
-                    }
-                }
-            }, 0, 100); // Schedule task to run every 100 milliseconds
-        }
+			animationTimer = new Timer();
+			animationTimer.schedule(new TimerTask() {
+				@Override
+				public void run() {
+					textY -= 2;
+					circleY -= 2;
+					repaint();
+					if (textY + getFontMetrics(getFont()).getAscent() < 0) {
+						animationTimer.cancel();
+					}
+				}
+			}, 0, 100);
+		}
 
-        @Override
-        protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
+		private void startFishAnimation() {
+			Timer fishTimer = new Timer();
+			fishTimer.schedule(new TimerTask() {
+				@Override
+				public void run() {
+					fishX -= 3; // Adjust the fish's horizontal movement speed
+					repaint();
+					if (fishX + 100 < 0) {
+						fishX = getWidth() + 50; // Reset fish position when it goes off-screen
+					}
+				}
+			}, 0, 50); // Schedule task to run every 50 milliseconds
+		}
 
-            int panelWidth = getWidth();
-            int panelHeight = getHeight();
+		@Override
+		protected void paintComponent(Graphics g) {
+			super.paintComponent(g);
 
-            // Calculate the center coordinates
-            int centerX = panelWidth / 2;
+			int panelWidth = getWidth();
+			int panelHeight = getHeight();
 
-            // Calculate the circle size
-            int circleSize = (Math.min(panelWidth, panelHeight) / 2) - 50 ;
+			int centerX = panelWidth / 2;
+			int circleSize = (Math.min(panelWidth, panelHeight) / 2) - 50;
 
-            // Draw blue circle
-            g.setColor(Color.WHITE);
-            g.fillOval(centerX - circleSize / 2, circleY - circleSize / 2, circleSize, circleSize);
+			g.setColor(Color.WHITE);
+			g.fillOval(centerX - circleSize / 2, circleY - circleSize / 2, circleSize, circleSize);
 
-            g.setColor(new Color(194, 178, 128)); // Sand color
-            g.fillRect(0, panelHeight - 20, panelWidth, 20);
+			g.setColor(new Color(194, 178, 128)); // Sand color
+			g.fillRect(0, panelHeight - 20, panelWidth, 20);
 
-            // Draw question text centered within the circle
-            g.setColor(Color.BLACK);
-            FontMetrics fontMetrics = g.getFontMetrics();
-            int textWidth = fontMetrics.stringWidth(questionText);
-            int textX = centerX - textWidth / 2;
-            g.drawString(questionText, textX, textY);
-        }
-    }
+			// Draw fishes
+			g.setColor(Color.orange);
+			g.fillOval(fishX, fishY, 50, 30);
+			g.setColor(Color.orange);
+			int[] xPoints = { fishX + 50, fishX + 65, fishX + 65 }; // Adjusted coordinates
+			int[] yPoints = { fishY + 15, fishY + 22, fishY + 8 }; // Adjusted coordinates
+			g.fillPolygon(xPoints, yPoints, 3);
 
+			g.setColor(Color.blue);
+			int secondFishX = getWidth() - fishX - 50; // Reverse the X position
+			int secondFishY = fishY - 100; // Adjusted initial Y position
+			g.fillOval(secondFishX, secondFishY, 50, 30);
+			int[] xPointsBlue = { secondFishX, secondFishX - 15, secondFishX - 15 };
+			int[] yPointsBlue = { secondFishY + 15, secondFishY + 22, secondFishY + 8 };
+			g.fillPolygon(xPointsBlue, yPointsBlue, 3);
 
+			g.setColor(Color.green);
+			int thirdFishX = getWidth() - fishX + 50; // Reverse the X position
+			int thirdFishY = fishY - 300; // Adjusted initial Y position
+			g.fillOval(thirdFishX, thirdFishY, 50, 30);
+			int[] xPointsGreen = { thirdFishX, thirdFishX - 15, thirdFishX - 15 };
+			int[] yPointsGreen = { thirdFishY + 15, thirdFishY + 22, thirdFishY + 8 };
+			g.fillPolygon(xPointsGreen, yPointsGreen, 3);
 
+			g.setColor(Color.magenta);
+			int fourthFishX = fishX; // Reverse the X position
+			int fourthFishY = fishY - 200; // Adjusted initial Y position
+			g.fillOval(fourthFishX, fourthFishY, 50, 30);
 
-    private static void askQuestion() {
-        SwingUtilities.invokeLater(() -> {
-            // Cancel the previous timer task
-            if (questionTimerTask != null) {
-                questionTimerTask.cancel();
-            }
+			// Adjusted coordinates for the magenta fish's tail
+			int[] xPointsMagenta = { fourthFishX + 50, fourthFishX + 65, fourthFishX + 65 };
+			int[] yPointsMagenta = { fourthFishY + 15, fourthFishY + 22, fourthFishY + 8 };
+			g.fillPolygon(xPointsMagenta, yPointsMagenta, 3);
 
-            // Check if there are more questions
-            if (currentQuestionIndex < questionsAndAnswers.size()) {
-                QuestionAndAnswer currentQuestion = questionsAndAnswers.get(currentQuestionIndex);
-                ((QuestionPanel) frame.getContentPane().getComponent(0)).setQuestion(currentQuestion);
+			g.setColor(Color.BLACK);
+			FontMetrics fontMetrics = g.getFontMetrics();
+			int textWidth = fontMetrics.stringWidth(questionText);
+			int textX = centerX - textWidth / 2;
+			g.drawString(questionText, textX, textY);
+		}
+	}
 
-                String[] options = currentQuestion.getOptions();
-                for (int i = 0; i < answerButtons.length; i++) {
-                    answerButtons[i].setText(options[i]);
-                }
+	private static void askQuestion() {
+		SwingUtilities.invokeLater(() -> {
+			// Cancel the previous timer task
+			if (questionTimerTask != null) {
+				questionTimerTask.cancel();
+			}
 
-                // Reset the timer for each question
-                questionTimerTask = new TimerTask() {
-                    @Override
-                    public void run() {
-                        System.out.println("Time's up! No points awarded.");
-                        askQuestion();
-                    }
-                };
+			// Check if there are more questions
+			if (currentQuestionIndex < questionsAndAnswers.size()) {
+				QuestionAndAnswer currentQuestion = questionsAndAnswers.get(currentQuestionIndex);
+				((QuestionPanel) frame.getContentPane().getComponent(0)).setQuestion(currentQuestion);
 
-                gameTimer.schedule(questionTimerTask, 10 * 1000); // 10 seconds
+				String[] options = currentQuestion.getOptions();
+				for (int i = 0; i < answerButtons.length; i++) {
+					answerButtons[i].setText(options[i]);
+				}
 
-                currentQuestionIndex++;
-            } else {
-                endGame(); // No more questions, end the game
-            }
-        });
-    
-    }
+				// Reset the timer for each question
+				questionTimerTask = new TimerTask() {
+					@Override
+					public void run() {
+						System.out.println("Time's up! No points awarded.");
+						askQuestion();
+					}
+				};
 
-    private static void handleAnswerChoice(int choiceIndex) {
-        QuestionAndAnswer currentQuestion = questionsAndAnswers.get(currentQuestionIndex - 1);
-        String userAnswer = currentQuestion.getOptions()[choiceIndex].substring(0, 1);
+				gameTimer.schedule(questionTimerTask, 10 * 1000); // 10 seconds
 
-        // Check the user's answer
-        if (userAnswer.equalsIgnoreCase(currentQuestion.getCorrectAnswer())) {
-            // Correct answer
-            JOptionPane.showMessageDialog(frame, "Correct! You earned 2 points.");
-            score += 2;
-            if (currentQuestionIndex < questionsAndAnswers.size()) {
-                askQuestion(); // Move to the next question
-            } else {
-                endGame(); // End the game as all questions have been answered
-            }
-        } else {
-            // Wrong answer
-            JOptionPane.showMessageDialog(frame, "Wrong answer. No points awarded.");
-            if (currentQuestionIndex < questionsAndAnswers.size()) {
-                askQuestion(); // Move to the next question
-            } else {
-                endGame(); // End the game as all questions have been answered
-            }
-        }
-    }
+				currentQuestionIndex++;
+			} else {
+				endGame(); // No more questions, end the game
+			}
+		});
 
-    private static void endGame() {
-        gameTimer.cancel(); // Stop the main game timer
+	}
 
-        SwingUtilities.invokeLater(() -> {
-            if (score >= 10) {
-                JOptionPane.showMessageDialog(frame, "Congratulations! You won with " + score + " points.");
-            } else {
-                JOptionPane.showMessageDialog(frame, "Game over! You scored " + score + " points. Try again!");
-            }
+	private static void handleAnswerChoice(int choiceIndex) {
+		QuestionAndAnswer currentQuestion = questionsAndAnswers.get(currentQuestionIndex - 1);
+		String userAnswer = currentQuestion.getOptions()[choiceIndex].substring(0, 1);
 
-            System.exit(0); // Close the application
-        });
-    }
+		// Check the user's answer
+		if (userAnswer.equalsIgnoreCase(currentQuestion.getCorrectAnswer())) {
+			// Correct answer
+			JOptionPane.showMessageDialog(frame, "Correct! You earned 1 point.");
+			score += 1;
+			if (currentQuestionIndex < questionsAndAnswers.size()) {
+				askQuestion(); // Move to the next question
+			} else {
+				endGame(); // End the game as all questions have been answered
+			}
+		} else {
+			// Wrong answer
+			JOptionPane.showMessageDialog(frame, "Wrong answer. No points awarded.");
+			if (currentQuestionIndex < questionsAndAnswers.size()) {
+				askQuestion(); // Move to the next question
+			} else {
+				endGame(); // End the game as all questions have been answered
+			}
+		}
+	}
 
-    private static class QuestionAndAnswer {
-        private String question;
-        private String[] options;
-        private String correctAnswer;
+	private static void endGame() {
+		gameTimer.cancel(); // Stop the main game timer
 
-        public QuestionAndAnswer(String question, String optionA, String optionB, String optionC, String optionD, String correctAnswer) {
-            this.question = question;
-            this.options = new String[]{optionA, optionB, optionC, optionD};
-            this.correctAnswer = correctAnswer;
-        }
+		SwingUtilities.invokeLater(() -> {
+			if (score >= 10) {
+				JOptionPane.showMessageDialog(frame, "Congratulations! You won with " + score + " points.");
+			} else {
+				JOptionPane.showMessageDialog(frame, "Game over! You scored " + score + " points. Try again!");
+			}
 
-        public String getQuestion() {
-            return question;
-        }
+			System.exit(0); // Close the application
+		});
+	}
 
-        public String[] getOptions() {
-            return options;
-        }
+	private static class QuestionAndAnswer {
+		private String question;
+		private String[] options;
+		private String correctAnswer;
 
-        public String getCorrectAnswer() {
-            return correctAnswer;
-        }
-    }
-    
-    private static void updateInfoPanel() {
-        SwingUtilities.invokeLater(() -> {
-            timeLabel.setText("Time Left: " + timerSeconds + "s");
-            scoreLabel.setText("Points: " + score);
-        });
-    }
+		public QuestionAndAnswer(String question, String optionA, String optionB, String optionC, String optionD,
+				String correctAnswer) {
+			this.question = question;
+			this.options = new String[] { optionA, optionB, optionC, optionD };
+			this.correctAnswer = correctAnswer;
+		}
+
+		public String getQuestion() {
+			return question;
+		}
+
+		public String[] getOptions() {
+			return options;
+		}
+
+		public String getCorrectAnswer() {
+			return correctAnswer;
+		}
+	}
+
+	private static void updateInfoPanel() {
+		SwingUtilities.invokeLater(() -> {
+			timeLabel.setText("Time Left: " + timerSeconds + "s");
+			scoreLabel.setText("Points: " + score);
+		});
+	}
+
 }
