@@ -2,22 +2,24 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class PointsandQuestions {
 	private static int score = 0;
-	private static int timerSeconds = 60;
+	private static int timerSeconds = 60; // show many seconds the countdown timer starts with
 	private static Timer gameTimer;
 	private static JFrame frame;
-	private static JButton[] answerButtons;
+	private static JButton[] answerButtons; // buttons array
 	private static JLabel timeLabel; // Added for displaying time left
 	private static JLabel scoreLabel; // Added for displaying points
 	private static TimerTask questionTimerTask;
 
 	// List of questions and answers
-	private static ArrayList<QuestionAndAnswer> questionsAndAnswers = new ArrayList<>();
+	private static ArrayList<QuestionAndAnswer> questionsAndAnswers = new ArrayList<>(); // array list of questions
 	private static int currentQuestionIndex = 0;
 
 	public static void main(String[] args) {
@@ -26,13 +28,13 @@ public class PointsandQuestions {
 		SwingUtilities.invokeLater(() -> initializeGUI());
 
 		// Schedule the main game timer
-		gameTimer = new Timer();
+		gameTimer = new Timer(); // main timer = 60 seconds
 		gameTimer.scheduleAtFixedRate(new TimerTask() {
 			@Override
 			public void run() {
-				timerSeconds--;
+				timerSeconds--; // subtract one second from the timer
 				if (timerSeconds >= 0) {
-					updateInfoPanel();
+					updateInfoPanel(); // update the time remaining at the top
 				} else {
 					endGame();
 				}
@@ -44,7 +46,7 @@ public class PointsandQuestions {
 	}
 
 	private static void initializeQuestions() {
-		// Add questions and answers to the list
+		// Add questions followed by their answers to the array list
 		questionsAndAnswers.add(new QuestionAndAnswer("What is 3 x 3?", "A) 6", "B) 27", "C) 9", "D) 8", "C"));
 		questionsAndAnswers.add(new QuestionAndAnswer("What is 4 x 5?", "A) 30", "B) 40", "C) 24", "D) 20", "D"));
 		questionsAndAnswers.add(new QuestionAndAnswer("What is 6 x 6?", "A) 30", "B) 36", "C) 12", "D) 60", "B"));
@@ -58,7 +60,7 @@ public class PointsandQuestions {
 	}
 
 	private static void initializeGUI() {
-		frame = new JFrame("Point System Game");
+		frame = new JFrame("Underwater Math Game");
 		frame.setSize(480, 640);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLayout(new BorderLayout());
@@ -66,9 +68,10 @@ public class PointsandQuestions {
 		QuestionPanel questionPanel = new QuestionPanel(); // Create the QuestionPanel instance
 		frame.add(new QuestionPanel(), BorderLayout.CENTER);
 
-		JPanel infoPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		JPanel infoPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT)); // info panel at the top with time remaining
+																			// and points
 		timeLabel = new JLabel("Time Left: " + timerSeconds + "s");
-		scoreLabel = new JLabel("Points: " + score);
+		scoreLabel = new JLabel("Points: " + score); // score of the player
 		infoPanel.add(timeLabel);
 		infoPanel.add(scoreLabel);
 		frame.add(infoPanel, BorderLayout.NORTH);
@@ -91,6 +94,33 @@ public class PointsandQuestions {
 		frame.add(buttonPanel, BorderLayout.SOUTH);
 
 		frame.setVisible(true);
+		
+		frame.addKeyListener(new KeyAdapter() {
+	        @Override
+	        public void keyTyped(KeyEvent e) {
+	            char keyChar = e.getKeyChar();
+	            int choiceIndex = -1;
+
+	            // Check which key was pressed (A, B, C, or D)
+	            if (keyChar == 'A' || keyChar == 'a') {
+	                choiceIndex = 0;
+	            } else if (keyChar == 'B' || keyChar == 'b') {
+	                choiceIndex = 1;
+	            } else if (keyChar == 'C' || keyChar == 'c') {
+	                choiceIndex = 2;
+	            } else if (keyChar == 'D' || keyChar == 'd') {
+	                choiceIndex = 3;
+	            }
+
+	            // If a valid key was pressed, handle the answer choice
+	            if (choiceIndex >= 0 && choiceIndex < answerButtons.length) {
+	                handleAnswerChoice(choiceIndex);
+	            }
+	        }
+	    });
+
+	    frame.setFocusable(true);
+	    frame.requestFocusInWindow();
 	}
 
 	private static class QuestionPanel extends JPanel {
@@ -100,6 +130,7 @@ public class PointsandQuestions {
 		private int fishX;
 		private int fishY;
 		private Timer animationTimer;
+		private Timer fishTimer;
 
 		public QuestionPanel() {
 			setBackground(new Color(0, 128, 255)); // Blue color for water
@@ -140,7 +171,11 @@ public class PointsandQuestions {
 		}
 
 		private void startFishAnimation() {
-			Timer fishTimer = new Timer();
+			if (fishTimer != null) {
+				fishTimer.cancel();
+			}
+
+			fishTimer = new Timer();
 			fishTimer.schedule(new TimerTask() {
 				@Override
 				public void run() {
@@ -150,7 +185,7 @@ public class PointsandQuestions {
 						fishX = getWidth() + 50; // Reset fish position when it goes off-screen
 					}
 				}
-			}, 0, 50); // Schedule task to run every 50 milliseconds
+			}, 0, 50);
 		}
 
 		@Override
@@ -197,8 +232,6 @@ public class PointsandQuestions {
 			int fourthFishX = fishX; // Reverse the X position
 			int fourthFishY = fishY - 200; // Adjusted initial Y position
 			g.fillOval(fourthFishX, fourthFishY, 50, 30);
-
-			// Adjusted coordinates for the magenta fish's tail
 			int[] xPointsMagenta = { fourthFishX + 50, fourthFishX + 65, fourthFishX + 65 };
 			int[] yPointsMagenta = { fourthFishY + 15, fourthFishY + 22, fourthFishY + 8 };
 			g.fillPolygon(xPointsMagenta, yPointsMagenta, 3);
@@ -227,7 +260,6 @@ public class PointsandQuestions {
 				for (int i = 0; i < answerButtons.length; i++) {
 					answerButtons[i].setText(options[i]);
 				}
-
 				// Reset the timer for each question
 				questionTimerTask = new TimerTask() {
 					@Override
@@ -236,9 +268,7 @@ public class PointsandQuestions {
 						askQuestion();
 					}
 				};
-
 				gameTimer.schedule(questionTimerTask, 10 * 1000); // 10 seconds
-
 				currentQuestionIndex++;
 			} else {
 				endGame(); // No more questions, end the game
