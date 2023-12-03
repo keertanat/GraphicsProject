@@ -11,8 +11,10 @@ public class PointsandQuestions {
     private static int timerSeconds = 60;
     private static Timer gameTimer;
     private static JFrame frame;
-    private static JLabel questionLabel;
     private static JButton[] answerButtons;
+    private static JLabel timeLabel;  // Added for displaying time left
+    private static JLabel scoreLabel; // Added for displaying points
+    private static TimerTask questionTimerTask;
 
     // List of questions and answers
     private static ArrayList<QuestionAndAnswer> questionsAndAnswers = new ArrayList<>();
@@ -28,9 +30,14 @@ public class PointsandQuestions {
         gameTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                endGame();
+                timerSeconds--;
+                if (timerSeconds >= 0) {
+                    updateInfoPanel();
+                } else {
+                    endGame();
+                }
             }
-        }, timerSeconds * 1000, timerSeconds * 1000); // Schedule repeated task
+        }, 0, 1000); // Schedule task to run every 1000 milliseconds (1 second)
 
         // Start the first question
         askQuestion();
@@ -38,15 +45,15 @@ public class PointsandQuestions {
 
     private static void initializeQuestions() {
         // Add questions and answers to the list
-	        questionsAndAnswers.add(new QuestionAndAnswer("What is 3 x 3?", "A) 6", "B) 27", "C) 9", "D) 8", "C"));
-	        questionsAndAnswers.add(new QuestionAndAnswer("What is 4 x 5?", "A) 30", "B) 40", "C) 24", "D) 20", "D"));
-	        questionsAndAnswers.add(new QuestionAndAnswer("What is 6 x 6?", "A) 30", "B) 36", "C) 12", "D) 60", "B"));
-	        questionsAndAnswers.add(new QuestionAndAnswer("What is 5 x 9?", "A) 54", "B) 45", "C) 50", "D) 40", "B"));
-	        questionsAndAnswers.add(new QuestionAndAnswer("What is 9 x 6?", "A) 60", "B) 45", "C) 54", "D) 48", "C"));
-	        questionsAndAnswers.add(new QuestionAndAnswer("What is 8 x 7?", "A) 48", "B) 54", "C) 58", "D) 56", "D"));
-	        questionsAndAnswers.add(new QuestionAndAnswer("What is 11 x 11?", "A) 121", "B) 110", "C) 120", "D) 111", "A"));
-	        questionsAndAnswers.add(new QuestionAndAnswer("What is 12 x 14?", "A) 124", "B) 160", "C) 168", "D) 148", "C"));
-	        questionsAndAnswers.add(new QuestionAndAnswer("What is 16 x 16?", "A) 306", "B) 196", "C) 236", "D) 256", "D"));
+    	questionsAndAnswers.add(new QuestionAndAnswer("What is 3 x 3?", "A) 6", "B) 27", "C) 9", "D) 8", "C"));
+        questionsAndAnswers.add(new QuestionAndAnswer("What is 4 x 5?", "A) 30", "B) 40", "C) 24", "D) 20", "D"));
+        questionsAndAnswers.add(new QuestionAndAnswer("What is 6 x 6?", "A) 30", "B) 36", "C) 12", "D) 60", "B"));
+        questionsAndAnswers.add(new QuestionAndAnswer("What is 5 x 9?", "A) 54", "B) 45", "C) 50", "D) 40", "B"));
+        questionsAndAnswers.add(new QuestionAndAnswer("What is 9 x 6?", "A) 60", "B) 45", "C) 54", "D) 48", "C"));
+        questionsAndAnswers.add(new QuestionAndAnswer("What is 8 x 7?", "A) 48", "B) 54", "C) 58", "D) 56", "D"));
+        questionsAndAnswers.add(new QuestionAndAnswer("What is 11 x 11?", "A) 121", "B) 110", "C) 120", "D) 111", "A"));
+        questionsAndAnswers.add(new QuestionAndAnswer("What is 12 x 14?", "A) 124", "B) 160", "C) 168", "D) 148", "C"));
+        questionsAndAnswers.add(new QuestionAndAnswer("What is 16 x 16?", "A) 306", "B) 196", "C) 236", "D) 256", "D"));
 
     }
 
@@ -62,6 +69,13 @@ public class PointsandQuestions {
 //		questionLabel = new JLabel("Welcome to the Point System Game!", SwingConstants.CENTER);
 	//	frame.add(questionLabel, BorderLayout.NORTH);
 
+		JPanel infoPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        timeLabel = new JLabel("Time Left: " + timerSeconds + "s");
+        scoreLabel = new JLabel("Points: " + score);
+        infoPanel.add(timeLabel);
+        infoPanel.add(scoreLabel);
+        frame.add(infoPanel, BorderLayout.NORTH);
+        
 		JPanel buttonPanel = new JPanel(new GridLayout(2, 2));
 		answerButtons = new JButton[4];
 
@@ -86,10 +100,11 @@ public class PointsandQuestions {
         private String questionText;
         private int textY;
         private int circleY;
+        private Timer animationTimer;
 
         public QuestionPanel() {
             // Set the background color of the panel
-            setBackground(Color.CYAN);
+            setBackground(new Color(0, 128, 255)); // Blue color for water
             textY = getHeight() / 2; // Initialize the text position at the center
             circleY = getHeight() / 2; // Initialize the circle position at the center
         }
@@ -103,15 +118,20 @@ public class PointsandQuestions {
         }
 
         private void startTextAnimation() {
-            Timer timer = new Timer();
-            timer.schedule(new TimerTask() {
+            // Cancel the previous animation timer
+            if (animationTimer != null) {
+                animationTimer.cancel();
+            }
+
+            animationTimer = new Timer();
+            animationTimer.schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    textY -= 5; // Adjust the floating speed
-                    circleY -= 5; // Adjust the circle's position along with the text
+                    textY -= 2; // Adjust the floating speed
+                    circleY -= 2; // Adjust the circle's position along with the text
                     repaint();
                     if (textY + getFontMetrics(getFont()).getAscent() < 0) {
-                        timer.cancel(); // Stop the timer when text goes above the panel
+                        animationTimer.cancel(); // Stop the timer when text goes above the panel
                     }
                 }
             }, 0, 100); // Schedule task to run every 100 milliseconds
@@ -128,17 +148,17 @@ public class PointsandQuestions {
             int centerX = panelWidth / 2;
 
             // Calculate the circle size
-            int circleSize = Math.min(panelWidth, panelHeight) / 2;
+            int circleSize = (Math.min(panelWidth, panelHeight) / 2) - 50 ;
 
             // Draw blue circle
             g.setColor(Color.WHITE);
             g.fillOval(centerX - circleSize / 2, circleY - circleSize / 2, circleSize, circleSize);
-          
+
             g.setColor(new Color(194, 178, 128)); // Sand color
             g.fillRect(0, panelHeight - 20, panelWidth, 20);
 
             // Draw question text centered within the circle
-            g.setColor(Color.BLUE.brighter());
+            g.setColor(Color.BLACK);
             FontMetrics fontMetrics = g.getFontMetrics();
             int textWidth = fontMetrics.stringWidth(questionText);
             int textX = centerX - textWidth / 2;
@@ -147,14 +167,18 @@ public class PointsandQuestions {
     }
 
 
+
+
     private static void askQuestion() {
         SwingUtilities.invokeLater(() -> {
+            // Cancel the previous timer task
+            if (questionTimerTask != null) {
+                questionTimerTask.cancel();
+            }
+
             // Check if there are more questions
             if (currentQuestionIndex < questionsAndAnswers.size()) {
                 QuestionAndAnswer currentQuestion = questionsAndAnswers.get(currentQuestionIndex);
-               // questionLabel.setText("Question: " + currentQuestion.getQuestion());
-              //  frame.remove(0); // Remove the existing QuestionPanel
-                //frame.add(new QuestionPanel(), BorderLayout.NORTH);
                 ((QuestionPanel) frame.getContentPane().getComponent(0)).setQuestion(currentQuestion);
 
                 String[] options = currentQuestion.getOptions();
@@ -163,19 +187,22 @@ public class PointsandQuestions {
                 }
 
                 // Reset the timer for each question
-                gameTimer.schedule(new TimerTask() {
+                questionTimerTask = new TimerTask() {
                     @Override
                     public void run() {
                         System.out.println("Time's up! No points awarded.");
                         askQuestion();
                     }
-                }, 10 * 1000); // 10 seconds
+                };
+
+                gameTimer.schedule(questionTimerTask, 10 * 1000); // 10 seconds
 
                 currentQuestionIndex++;
             } else {
                 endGame(); // No more questions, end the game
             }
         });
+    
     }
 
     private static void handleAnswerChoice(int choiceIndex) {
@@ -239,5 +266,12 @@ public class PointsandQuestions {
         public String getCorrectAnswer() {
             return correctAnswer;
         }
+    }
+    
+    private static void updateInfoPanel() {
+        SwingUtilities.invokeLater(() -> {
+            timeLabel.setText("Time Left: " + timerSeconds + "s");
+            scoreLabel.setText("Points: " + score);
+        });
     }
 }
