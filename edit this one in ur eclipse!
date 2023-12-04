@@ -1,9 +1,13 @@
+import javax.imageio.ImageIO;
+import java.io.IOException;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -96,7 +100,7 @@ public class UnderwaterMathChallenge {
 
 		frame.setVisible(true);
 		
-		frame.addKeyListener(new KeyListener());
+		frame.addKeyListener(new UnderwaterMathChallenge.KeyListener());
 
 	    frame.setFocusable(true);
 	    frame.requestFocusInWindow();
@@ -110,13 +114,27 @@ public class UnderwaterMathChallenge {
 		private int fishY;
 		private Timer animationTimer;
 		private Timer fishTimer;
+		private Image bubble;
+		private Image background;
 
+
+		
+//		bubble = new ImageIcon("bubbleforgame.png").getImage(); 
+		
 		public QuestionPanel() {
-			setBackground(new Color(0, 128, 255)); // Blue color for water
+			//setBackground(new Color(0, 128, 255)); // Blue color for water
+	        setOpaque(false); // Make the panel transparent
 			textY = getHeight() / 2;
 			circleY = getHeight() / 2;
 			fishX = getWidth() + 50;
 			fishY = getHeight() - 100;
+			try {
+                background = ImageIO.read(new File("resources/background.jpg")); // Load image in the constructor
+				bubble = ImageIO.read(new File("resources/bubbleforgame.png")); // Load image in the constructor
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+			
 		}
 
 		public void setQuestion(QuestionAndAnswer question) {
@@ -176,9 +194,13 @@ public class UnderwaterMathChallenge {
 
 			int centerX = panelWidth / 2;
 			int circleSize = (Math.min(panelWidth, panelHeight) / 2) - 50;
+			
+			//g.setColor(Color.WHITE);
+			//g.fillOval(centerX - circleSize / 2, circleY - circleSize / 2, circleSize, circleSize);
+		    
+	        g.drawImage(background, 0, 0, getWidth(), getHeight(), this);
+		    g.drawImage(bubble, centerX - circleSize / 2, circleY - circleSize / 2, circleSize, circleSize, null);
 
-			g.setColor(Color.WHITE);
-			g.fillOval(centerX - circleSize / 2, circleY - circleSize / 2, circleSize, circleSize);
 
 			g.setColor(new Color(194, 178, 128)); // Sand color
 			g.fillRect(0, panelHeight - 20, panelWidth, 20);
@@ -215,8 +237,9 @@ public class UnderwaterMathChallenge {
 			int[] yPointsMagenta = { fourthFishY + 15, fourthFishY + 22, fourthFishY + 8 };
 			g.fillPolygon(xPointsMagenta, yPointsMagenta, 3);
 
-			g.setColor(Color.BLACK);
+			g.setColor(Color.WHITE);
 			FontMetrics fontMetrics = g.getFontMetrics();
+		    setFont(new Font("Monospaced", Font.BOLD, 15));
 			int textWidth = fontMetrics.stringWidth(questionText);
 			int textX = centerX - textWidth / 2;
 			g.drawString(questionText, textX, textY);
