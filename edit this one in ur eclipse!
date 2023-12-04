@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class PointsandQuestions {
+public class UnderwaterMathChallenge {
 	private static int score = 0;
 	private static int timerSeconds = 60; // show many seconds the countdown timer starts with
 	private static Timer gameTimer;
