@@ -47,15 +47,16 @@ public class PointsandQuestions {
 
 	private static void initializeQuestions() {
 		// Add questions followed by their answers to the array list
-		questionsAndAnswers.add(new QuestionAndAnswer("What is 3 x 3?", "A) 6", "B) 27", "C) 9", "D) 8", "C"));
 		questionsAndAnswers.add(new QuestionAndAnswer("What is 4 x 5?", "A) 30", "B) 40", "C) 24", "D) 20", "D"));
-		questionsAndAnswers.add(new QuestionAndAnswer("What is 6 x 6?", "A) 30", "B) 36", "C) 12", "D) 60", "B"));
-		questionsAndAnswers.add(new QuestionAndAnswer("What is 5 x 9?", "A) 54", "B) 45", "C) 50", "D) 40", "B"));
 		questionsAndAnswers.add(new QuestionAndAnswer("What is 9 x 6?", "A) 60", "B) 45", "C) 54", "D) 48", "C"));
-		questionsAndAnswers.add(new QuestionAndAnswer("What is 8 x 7?", "A) 48", "B) 54", "C) 58", "D) 56", "D"));
+		questionsAndAnswers.add(new QuestionAndAnswer("What is 8 x 7?", "A) 48", "B) 56", "C) 58", "D) 54", "B"));
 		questionsAndAnswers.add(new QuestionAndAnswer("What is 11 x 11?", "A) 121", "B) 110", "C) 120", "D) 111", "A"));
 		questionsAndAnswers.add(new QuestionAndAnswer("What is 12 x 14?", "A) 124", "B) 160", "C) 168", "D) 148", "C"));
 		questionsAndAnswers.add(new QuestionAndAnswer("What is 16 x 16?", "A) 306", "B) 196", "C) 236", "D) 256", "D"));
+		questionsAndAnswers.add(new QuestionAndAnswer("What is 3 + 5 x 2?", "A) 16", "B) 30", "C) 18", "D) 13", "D"));
+		questionsAndAnswers.add(new QuestionAndAnswer("What is 8 - 4 / 2?", "A) 2", "B) 6", "C) 12", "D) 4", "B"));
+		questionsAndAnswers.add(new QuestionAndAnswer("What is (5 - 2) x 4 + 7?", "A) 19", "B) 16", "C) 18", "D) ", "A"));
+		questionsAndAnswers.add(new QuestionAndAnswer("What is 4 x (6-3) + 2^2?", "A) 18", "B) 12", "C) 16", "D) 14", "C"));
 
 	}
 
