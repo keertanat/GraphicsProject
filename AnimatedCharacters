@@ -1,0 +1,65 @@
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.Pane;
+import javafx.stage.Stage;
+import javafx.util.Duration;
+
+public class SpongebobAnimation extends Application {
+
+    private static final int WIDTH = 800;
+    private static final int HEIGHT = 600;
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+
+    @Override
+    public void start(Stage primaryStage) {
+        Pane root = new Pane();
+
+        Image spongebobImage = new Image("https://p1.hiclipart.com/preview/743/652/900/spongebob-s-spongebob-squarepants-illustration-png-clipart.jpg");
+        Image patrickImage = new Image("https://www.pngfind.com/pngs/m/675-6751001_patrick-star-picture-eq240-spongebob-squarepants-patrick-png.png");
+
+        ImageView spongebobView = createImageView(spongebobImage);
+        ImageView patrickView = createImageView(patrickImage);
+
+        root.getChildren().addAll(spongebobView, patrickView);
+
+        Timeline timeline = new Timeline(
+                new KeyFrame(Duration.millis(20), event -> moveCharacters(spongebobView, patrickView))
+        );
+        timeline.setCycleCount(Animation.INDEFINITE);
+        timeline.play();
+
+        Scene scene = new Scene(root, WIDTH, HEIGHT);
+        primaryStage.setTitle("SpongeBob and Patrick Animation");
+        primaryStage.setScene(scene);
+        primaryStage.show();
+    }
+
+    private ImageView createImageView(Image image) {
+        ImageView imageView = new ImageView(image);
+        imageView.setFitWidth(100);
+        imageView.setFitHeight(100);
+        imageView.setLayoutY(HEIGHT - imageView.getFitHeight());
+        return imageView;
+    }
+
+    private void moveCharacters(ImageView spongebobView, ImageView patrickView) {
+        spongebobView.setLayoutX(spongebobView.getLayoutX() + 3);
+        patrickView.setLayoutX(patrickView.getLayoutX() + 3);
+
+        if (spongebobView.getLayoutX() > WIDTH) {
+            spongebobView.setLayoutX(-spongebobView.getFitWidth());
+        }
+
+        if (patrickView.getLayoutX() > WIDTH) {
+            patrickView.setLayoutX(-patrickView.getFitWidth());
+        }
+    }
+}
