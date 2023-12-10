@@ -1,65 +1,155 @@
-import javafx.animation.Animation;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
-import javafx.application.Application;
-import javafx.scene.Scene;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.Pane;
-import javafx.stage.Stage;
-import javafx.util.Duration;
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 
-public class SpongebobAnimation extends Application {
+public class UnderwaterMathChallenge {
 
-    private static final int WIDTH = 800;
-    private static final int HEIGHT = 600;
+    private static SpongeBob spongeBob;
+    private static Patrick patrick;
+
+    private static class QuestionPanel extends JPanel {
+
+        private void startWrongAnswerAnimation() {
+            spongeBob.startAnimation();
+            patrick.startAnimation();
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+
+            // ... (existing code)
+
+            // Draw SpongeBob and Patrick
+            spongeBob.draw(g, this);
+            patrick.draw(g, this);
+        }
+    }
+
+    private static class SpongeBob {
+        private int x;
+        private int y;
+        private int speed;
+        private BufferedImage spongeBobImage;
+        private Timer animationTimer;
+
+        public SpongeBob(int x, int y, int speed) {
+            this.x = x;
+            this.y = y;
+            this.speed = speed;
+
+            try {
+                spongeBobImage = ImageIO.read(new File("https://www.pngfind.com/pngs/m/675-6751001_patrick-star-picture-eq240-spongebob-squarepants-patrick-png.png"));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        public void startAnimation() {
+            if (animationTimer != null) {
+                animationTimer.cancel();
+            }
+
+            animationTimer = new Timer();
+            animationTimer.scheduleAtFixedRate(new TimerTask() {
+                @Override
+                public void run() {
+                    move();
+                    frame.repaint();
+                }
+            }, 0, 50);
+        }
+
+        private void move() {
+            Random random = new Random();
+            x += random.nextInt(3) - 1; // Move randomly left, right, or stay in place
+            y += random.nextInt(3) - 1; // Move randomly up, down, or stay in place
+        }
+
+        public void draw(Graphics g, JComponent component) {
+            if (spongeBobImage != null) {
+                g.drawImage(spongeBobImage, x, y, component);
+            }
+        }
+    }
+
+    private static class Patrick {
+        private int x;
+        private int y;
+        private int speed;
+        private BufferedImage patrickImage;
+        private Timer animationTimer;
+
+        public Patrick(int x, int y, int speed) {
+            this.x = x;
+            this.y = y;
+            this.speed = speed;
+
+            try {
+                patrickImage = ImageIO.read(new File("https://p1.hiclipart.com/preview/743/652/900/spongebob-s-spongebob-squarepants-illustration-png-clipart.jpg"));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        public void startAnimation() {
+            if (animationTimer != null) {
+                animationTimer.cancel();
+            }
+
+            animationTimer = new Timer();
+            animationTimer.scheduleAtFixedRate(new TimerTask() {
+                @Override
+                public void run() {
+                    move();
+                    frame.repaint();
+                }
+            }, 0, 50);
+        }
+
+        private void move() {
+            Random random = new Random();
+            x += random.nextInt(3) - 1; // Move randomly left, right, or stay in place
+            y += random.nextInt(3) - 1; // Move randomly up, down, or stay in place
+        }
+
+        public void draw(Graphics g, JComponent component) {
+            if (patrickImage != null) {
+                g.drawImage(patrickImage, x, y, component);
+            }
+        }
+    }
+
 
     public static void main(String[] args) {
-        launch(args);
+        SwingUtilities.invokeLater(() -> {
+            initializeGUI();
+            initializeCharacters();
+        });
+
+        gameTimer = new Timer();
+        gameTimer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                // ... (existing code)
+            }
+        }, 0, 1000);
+
+        askQuestion();
     }
 
-    @Override
-    public void start(Stage primaryStage) {
-        Pane root = new Pane();
-
-        Image spongebobImage = new Image("https://p1.hiclipart.com/preview/743/652/900/spongebob-s-spongebob-squarepants-illustration-png-clipart.jpg");
-        Image patrickImage = new Image("https://www.pngfind.com/pngs/m/675-6751001_patrick-star-picture-eq240-spongebob-squarepants-patrick-png.png");
-
-        ImageView spongebobView = createImageView(spongebobImage);
-        ImageView patrickView = createImageView(patrickImage);
-
-        root.getChildren().addAll(spongebobView, patrickView);
-
-        Timeline timeline = new Timeline(
-                new KeyFrame(Duration.millis(20), event -> moveCharacters(spongebobView, patrickView))
-        );
-        timeline.setCycleCount(Animation.INDEFINITE);
-        timeline.play();
-
-        Scene scene = new Scene(root, WIDTH, HEIGHT);
-        primaryStage.setTitle("SpongeBob and Patrick Animation");
-        primaryStage.setScene(scene);
-        primaryStage.show();
-    }
-
-    private ImageView createImageView(Image image) {
-        ImageView imageView = new ImageView(image);
-        imageView.setFitWidth(100);
-        imageView.setFitHeight(100);
-        imageView.setLayoutY(HEIGHT - imageView.getFitHeight());
-        return imageView;
-    }
-
-    private void moveCharacters(ImageView spongebobView, ImageView patrickView) {
-        spongebobView.setLayoutX(spongebobView.getLayoutX() + 3);
-        patrickView.setLayoutX(patrickView.getLayoutX() + 3);
-
-        if (spongebobView.getLayoutX() > WIDTH) {
-            spongebobView.setLayoutX(-spongebobView.getFitWidth());
-        }
-
-        if (patrickView.getLayoutX() > WIDTH) {
-            patrickView.setLayoutX(-patrickView.getFitWidth());
-        }
+    private static void initializeCharacters() {
+        // Initialize SpongeBob and Patrick at the bottom of the screen
+        spongeBob = new SpongeBob(200, 500, 2);
+        patrick = new Patrick(300, 500, 2);
     }
 }
+
