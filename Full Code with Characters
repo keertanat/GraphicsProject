@@ -1,0 +1,601 @@
+import javax.imageio.ImageIO;
+import java.io.IOException;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
+
+public class UnderwaterMathChallenge {
+	private static int score = 0;
+	private static int timerSeconds = 60; // show many seconds the countdown timer starts with
+	private static Timer gameTimer;
+	private static JFrame frame;
+	private static JButton[] answerButtons; // buttons array
+	private static JLabel timeLabel; // Added for displaying time left
+	private static JLabel scoreLabel; // Added for displaying points
+	private static TimerTask questionTimerTask;
+
+	// List of questions and answers
+	private static ArrayList<QuestionAndAnswer> questionsAndAnswers = new ArrayList<>(); // array list of questions
+	private static int currentQuestionIndex = 0;
+
+  private static SpongeBob spongeBob;
+  private static Patrick patrick;
+
+	public static void main(String[] args) {
+		initializeQuestions(); // Initialize the list of questions
+
+		SwingUtilities.invokeLater(() -> initializeGUI());
+
+		// Schedule the main game timer
+		gameTimer = new Timer(); // main timer = 60 seconds
+		gameTimer.scheduleAtFixedRate(new TimerTask() {
+			@Override
+			public void run() {
+				timerSeconds--; // subtract one second from the timer
+				if (timerSeconds >= 0) {
+					updateInfoPanel(); // update the time remaining at the top
+				} else {
+					endGame();
+				}
+			}
+		}, 0, 1000); // Schedule task to run every 1000 milliseconds (1 second)
+
+		// Start the first question
+		askQuestion();
+	}
+
+	private static void initializeQuestions() {
+		// Add questions followed by their answers to the array list
+		questionsAndAnswers.add(new QuestionAndAnswer("What is 4 x 5?", "A) 30", "B) 40", "C) 24", "D) 20", "D"));
+		questionsAndAnswers.add(new QuestionAndAnswer("What is 9 x 6?", "A) 60", "B) 45", "C) 54", "D) 48", "C"));
+		questionsAndAnswers.add(new QuestionAndAnswer("What is 8 x 7?", "A) 48", "B) 56", "C) 58", "D) 54", "B"));
+		questionsAndAnswers.add(new QuestionAndAnswer("What is 11 x 11?", "A) 121", "B) 110", "C) 120", "D) 111", "A"));
+		questionsAndAnswers.add(new QuestionAndAnswer("What is 12 x 14?", "A) 124", "B) 160", "C) 168", "D) 148", "C"));
+		questionsAndAnswers.add(new QuestionAndAnswer("What is 16 x 16?", "A) 306", "B) 196", "C) 236", "D) 256", "D"));
+		questionsAndAnswers.add(new QuestionAndAnswer("What is 3 + 5 x 2?", "A) 16", "B) 30", "C) 18", "D) 13", "D"));
+		questionsAndAnswers.add(new QuestionAndAnswer("What is 8 - 4 / 2?", "A) 2", "B) 6", "C) 12", "D) 4", "B"));
+		questionsAndAnswers.add(new QuestionAndAnswer("What is (5 - 2) x 4 + 7?", "A) 19", "B) 16", "C) 18", "D) ", "A"));
+		questionsAndAnswers.add(new QuestionAndAnswer("What is 4 x (6-3) + 2^2?", "A) 18", "B) 12", "C) 16", "D) 14", "C"));
+
+	}
+
+	private static void initializeGUI() {
+		frame = new JFrame("Underwater Math Game");
+		frame.setSize(480, 640);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setLayout(new BorderLayout());
+
+		QuestionPanel questionPanel = new QuestionPanel(); // Create the QuestionPanel instance
+		frame.add(new QuestionPanel(), BorderLayout.CENTER);
+
+		JPanel infoPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT)); // info panel at the top with time remaining
+																			// and points
+		timeLabel = new JLabel("Time Left: " + timerSeconds + "s");
+		scoreLabel = new JLabel("Points: " + score); // score of the player
+		infoPanel.add(timeLabel);
+		infoPanel.add(scoreLabel);
+		frame.add(infoPanel, BorderLayout.NORTH);
+
+		JPanel buttonPanel = new JPanel(new GridLayout(2, 2));
+		answerButtons = new JButton[4];
+
+		for (int i = 0; i < answerButtons.length; i++) {
+			answerButtons[i] = new JButton();
+			buttonPanel.add(answerButtons[i]);
+			int finalI = i;
+			answerButtons[i].addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					handleAnswerChoice(finalI);
+				}
+			});
+		}
+
+		frame.add(buttonPanel, BorderLayout.SOUTH);
+
+		frame.setVisible(true);
+		
+		frame.addKeyListener(new UnderwaterMathChallenge.KeyListener());
+
+	    frame.setFocusable(true);
+	    frame.requestFocusInWindow();
+	}
+
+	private static class QuestionPanel extends JPanel {
+		private String questionText;
+		private int textY;
+		private int circleY;
+		private int fishX;
+		private int fishY;
+		private Timer animationTimer;
+		private Timer fishTimer;
+		private Image bubble;
+		private Image background;
+
+
+		
+//		bubble = new ImageIcon("bubbleforgame.png").getImage(); 
+		
+		public QuestionPanel() {
+			//setBackground(new Color(0, 128, 255)); // Blue color for water
+	        setOpaque(false); // Make the panel transparent
+			textY = getHeight() / 2;
+			circleY = getHeight() / 2;
+			fishX = getWidth() + 50;
+			fishY = getHeight() - 100;
+			try {
+                background = ImageIO.read(new File("resources/background.jpg")); // Load image in the constructor
+				bubble = ImageIO.read(new File("resources/bubbleforgame.png")); // Load image in the constructor
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+			
+		}
+
+		public void setQuestion(QuestionAndAnswer question) {
+			this.questionText = question.getQuestion();
+			textY = getHeight() / 2;
+			circleY = getHeight() / 2;
+			fishX = getWidth() + 50;
+			fishY = getHeight() - 100;
+			repaint();
+			startTextAnimation();
+			startFishAnimation();
+		}
+
+		private void startTextAnimation() {
+			if (animationTimer != null) {
+				animationTimer.cancel();
+			}
+
+			animationTimer = new Timer();
+			animationTimer.schedule(new TimerTask() {
+				@Override
+				public void run() {
+					textY -= 2;
+					circleY -= 2;
+					repaint();
+					if (textY + getFontMetrics(getFont()).getAscent() < 0) {
+						animationTimer.cancel();
+					}
+				}
+			}, 0, 100);
+		}
+
+		private void startFishAnimation() {
+			if (fishTimer != null) {
+				fishTimer.cancel();
+			}
+
+			fishTimer = new Timer();
+			fishTimer.schedule(new TimerTask() {
+				@Override
+				public void run() {
+					fishX -= 3; // Adjust the fish's horizontal movement speed
+					repaint();
+					if (fishX + 100 < 0) {
+						fishX = getWidth() + 50; // Reset fish position when it goes off-screen
+					}
+				}
+			}, 0, 50);
+		}
+
+		@Override
+		protected void paintComponent(Graphics g) {
+			super.paintComponent(g);
+
+			int panelWidth = getWidth();
+			int panelHeight = getHeight();
+
+			int centerX = panelWidth / 2;
+			int circleSize = (Math.min(panelWidth, panelHeight) / 2) - 50;
+			
+			//g.setColor(Color.WHITE);
+			//g.fillOval(centerX - circleSize / 2, circleY - circleSize / 2, circleSize, circleSize);
+		    
+	        g.drawImage(background, 0, 0, getWidth(), getHeight(), this);
+		    g.drawImage(bubble, centerX - circleSize / 2, circleY - circleSize / 2, circleSize, circleSize, null);
+
+
+			g.setColor(new Color(194, 178, 128)); // Sand color
+			g.fillRect(0, panelHeight - 20, panelWidth, 20);
+
+      spongeBob.draw(g, this);
+      patrick.draw(g, this);
+
+			// Draw fishes
+			g.setColor(Color.orange);
+			g.fillOval(fishX, fishY, 50, 30);
+			g.setColor(Color.orange);
+			int[] xPoints = { fishX + 50, fishX + 65, fishX + 65 }; // Adjusted coordinates
+			int[] yPoints = { fishY + 15, fishY + 22, fishY + 8 }; // Adjusted coordinates
+			g.fillPolygon(xPoints, yPoints, 3);
+
+			g.setColor(Color.blue);
+			int secondFishX = getWidth() - fishX - 50; // Reverse the X position
+			int secondFishY = fishY - 100; // Adjusted initial Y position
+			g.fillOval(secondFishX, secondFishY, 50, 30);
+			int[] xPointsBlue = { secondFishX, secondFishX - 15, secondFishX - 15 };
+			int[] yPointsBlue = { secondFishY + 15, secondFishY + 22, secondFishY + 8 };
+			g.fillPolygon(xPointsBlue, yPointsBlue, 3);
+
+			g.setColor(Color.green);
+			int thirdFishX = getWidth() - fishX + 50; // Reverse the X position
+			int thirdFishY = fishY - 300; // Adjusted initial Y position
+			g.fillOval(thirdFishX, thirdFishY, 50, 30);
+			int[] xPointsGreen = { thirdFishX, thirdFishX - 15, thirdFishX - 15 };
+			int[] yPointsGreen = { thirdFishY + 15, thirdFishY + 22, thirdFishY + 8 };
+			g.fillPolygon(xPointsGreen, yPointsGreen, 3);
+
+			g.setColor(Color.magenta);
+			int fourthFishX = fishX; // Reverse the X position
+			int fourthFishY = fishY - 200; // Adjusted initial Y position
+			g.fillOval(fourthFishX, fourthFishY, 50, 30);
+			int[] xPointsMagenta = { fourthFishX + 50, fourthFishX + 65, fourthFishX + 65 };
+			int[] yPointsMagenta = { fourthFishY + 15, fourthFishY + 22, fourthFishY + 8 };
+			g.fillPolygon(xPointsMagenta, yPointsMagenta, 3);
+
+			g.setColor(Color.WHITE);
+			FontMetrics fontMetrics = g.getFontMetrics();
+		    setFont(new Font("Monospaced", Font.BOLD, 15));
+			int textWidth = fontMetrics.stringWidth(questionText);
+			int textX = centerX - textWidth / 2;
+			g.drawString(questionText, textX, textY);
+		}
+	}
+
+	private static void askQuestion() {
+		SwingUtilities.invokeLater(() -> {
+			// Cancel the previous timer task
+			if (questionTimerTask != null) {
+				questionTimerTask.cancel();
+			}
+
+			// Check if there are more questions
+			if (currentQuestionIndex < questionsAndAnswers.size()) {
+				QuestionAndAnswer currentQuestion = questionsAndAnswers.get(currentQuestionIndex);
+				((QuestionPanel) frame.getContentPane().getComponent(0)).setQuestion(currentQuestion);
+
+				String[] options = currentQuestion.getOptions();
+				for (int i = 0; i < answerButtons.length; i++) {
+					answerButtons[i].setText(options[i]);
+				}
+				// Reset the timer for each question
+				questionTimerTask = new TimerTask() {
+					@Override
+					public void run() {
+						System.out.println("Time's up! No points awarded.");
+						askQuestion();
+					}
+				};
+				gameTimer.schedule(questionTimerTask, 10 * 1000); // 10 seconds
+				currentQuestionIndex++;
+			} else {
+				endGame(); // No more questions, end the game
+			}
+		});
+
+	}
+
+	private static void handleAnswerChoice(int choiceIndex) {
+		QuestionAndAnswer currentQuestion = questionsAndAnswers.get(currentQuestionIndex - 1);
+		String userAnswer = currentQuestion.getOptions()[choiceIndex].substring(0, 1);
+
+		// Check the user's answer
+		if (userAnswer.equalsIgnoreCase(currentQuestion.getCorrectAnswer())) {
+			// Correct answer
+			JOptionPane.showMessageDialog(frame, "Correct! You earned 1 point.");
+			score += 1;
+			if (currentQuestionIndex < questionsAndAnswers.size()) {
+				askQuestion(); // Move to the next question
+			} else {
+				endGame(); // End the game as all questions have been answered
+			}
+		} else {
+			// Wrong answer
+			JOptionPane.showMessageDialog(frame, "Wrong answer. No points awarded.");
+			if (currentQuestionIndex < questionsAndAnswers.size()) {
+				askQuestion(); // Move to the next question
+			} else {
+				endGame(); // End the game as all questions have been answered
+			}
+		}
+	}
+
+	private static class KeyListener extends KeyAdapter {
+        @Override
+        public void keyTyped(KeyEvent e) { // handle key events to allow more than one form of input from user
+            char keyChar = Character.toUpperCase(e.getKeyChar());
+            switch (keyChar) {
+                case 'A':
+                    handleAnswerChoice(0);
+                    break;
+                case 'B':
+                    handleAnswerChoice(1);
+                    break;
+                case 'C':
+                    handleAnswerChoice(2);
+                    break;
+                case 'D':
+                    handleAnswerChoice(3);
+                    break;
+                default:
+                    System.out.println("Pressed an odd letter: " + keyChar);
+            }
+        }
+    }
+	private static void endGame() {
+		gameTimer.cancel(); // Stop the main game timer
+
+		SwingUtilities.invokeLater(() -> { // output at the end of the game timer 
+			if (score >= 10) {
+				JOptionPane.showMessageDialog(frame, "Congratulations! You won with " + score + " points.");
+			} else {
+				JOptionPane.showMessageDialog(frame, "Game over! You scored " + score + " points. Try again!");
+			}
+
+			System.exit(0); // Close the application
+		});
+	}
+
+	private static class QuestionAndAnswer {
+		private String question;
+		private String[] options;
+		private String correctAnswer;
+
+		public QuestionAndAnswer(String question, String optionA, String optionB, String optionC, String optionD,
+				String correctAnswer) {
+			this.question = question;
+			this.options = new String[] { optionA, optionB, optionC, optionD };
+			this.correctAnswer = correctAnswer;
+		}
+
+		public String getQuestion() {
+			return question;
+		}
+
+		public String[] getOptions() {
+			return options;
+		}
+
+		public String getCorrectAnswer() {
+			return correctAnswer;
+		}
+	}
+
+	private static void updateInfoPanel() {
+		SwingUtilities.invokeLater(() -> {
+			timeLabel.setText("Time Left: " + timerSeconds + "s");
+			scoreLabel.setText("Points: " + score);
+		});
+	}
+
+}
+
+private static class SpongeBob {
+        private int x;
+        private int y;
+        private int speed;
+        private BufferedImage spongeBobImage;
+        private Timer animationTimer;
+// Creates the Spongebob image
+
+        public SpongeBob(int x, int y, int speed) {
+            this.x = x;
+            this.y = y;
+            this.speed = speed;
+// Getting the image to start running across the screen
+            try {
+                spongeBobImage = ImageIO.read(new File("https://p1.hiclipart.com/preview/743/652/900/spongebob-s-spongebob-squarepants-illustration-png-clipart.jpg"));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        public void startAnimation() { // animation for Spongebob
+            if (animationTimer != null) {
+                animationTimer.cancel();
+            }
+
+            animationTimer = new Timer();
+            animationTimer.scheduleAtFixedRate(new TimerTask() {
+                @Override
+                public void run() {
+                    move();
+                    frame.repaint();
+                }
+            }, 0, 50);
+        }
+
+// Moves spongebob randomly across the screen 
+        private void move() {
+            Random random = new Random();
+            x += random.nextInt(3) - 1;
+            y += random.nextInt(3) - 1;
+        }
+
+// Draws Spongebob 
+        public void draw(Graphics g, JComponent component) {
+            if (spongeBobImage != null) {
+                g.drawImage(spongeBobImage, x, y, component);
+            }
+        }
+    }
+
+    private static class Patrick {
+        private int x;
+        private int y;
+        private int speed;
+        private BufferedImage patrickImage;
+        private Timer animationTimer;
+// Creates the Patrick image
+
+        public Patrick(int x, int y, int speed) {
+            this.x = x;
+            this.y = y;
+            this.speed = speed;
+// Getting the image to start running across the screen
+
+            try {
+                patrickImage = ImageIO.read(new File("https://www.pngfind.com/pngs/m/675-6751001_patrick-star-picture-eq240-spongebob-squarepants-patrick-png.png"));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        public void startAnimation() { // animation for Patrick 
+            if (animationTimer != null) {
+                animationTimer.cancel();
+            }
+
+            animationTimer = new Timer();
+            animationTimer.scheduleAtFixedRate(new TimerTask() {
+                @Override
+                public void run() {
+                    move();
+                    frame.repaint();
+                }
+            }, 0, 50);
+        }
+
+        private void move() { // Randomly moves Patrick across the screen 
+            Random random = new Random();
+            x += random.nextInt(3) - 1;
+            y += random.nextInt(3) - 1;
+        }
+
+        public void draw(Graphics g, JComponent component) { // Draws Patrick 
+            if (patrickImage != null) {
+                g.drawImage(patrickImage, x, y, component);
+            }
+        }
+    }
+}
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import javax.imageio.ImageIO;
+
+public class JellyfishAnimation extends JFrame {
+
+    private static final int WIDTH = 800;
+    private static final int HEIGHT = 600;
+    private static final Color LIGHT_BLUE = new Color(173, 216, 230);
+
+    private final List<Jellyfish> jellyfishList;
+
+    public JellyfishAnimation() {
+        setTitle("Upward Jellyfish Animation");
+        setSize(WIDTH, HEIGHT);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        JellyfishPanel jellyfishPanel = new JellyfishPanel();
+        add(jellyfishPanel);
+
+        jellyfishList = new ArrayList<>();
+
+        // Initialize jellyfish with random positions and speeds
+        Random random = new Random();
+        for (int i = 0; i < 5; i++) {
+            int x = random.nextInt(WIDTH);
+            int y = random.nextInt(HEIGHT);
+            int speed = random.nextInt(3) + 1; // Speed between 1 and 3
+            jellyfishList.add(new Jellyfish(x, y, speed));
+        }
+
+        // Create and start the animation thread
+        Thread animationThread = new Thread(() -> {
+            while (true) {
+                moveJellyfish();
+                SwingUtilities.invokeLater(() -> jellyfishPanel.repaint());
+
+                try {
+                    Thread.sleep(50); // Adjust the sleep duration for animation speed
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        animationThread.start();
+
+        setLocationRelativeTo(null);
+        setVisible(true);
+    }
+
+    private void moveJellyfish() {
+        for (Jellyfish jellyfish : jellyfishList) {
+            jellyfish.move();
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(JellyfishAnimation::new);
+    }
+
+    private class JellyfishPanel extends JPanel {
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+
+           
+
+            // Draw jellyfish
+            for (Jellyfish jellyfish : jellyfishList) {
+                jellyfish.draw(g, this);
+            }
+        }
+    }
+
+    private class Jellyfish {
+        private int x;
+        private int y;
+        private int speed;
+        private BufferedImage jellyfishImage;
+
+        public Jellyfish(int x, int y, int speed) {
+            this.x = x;
+            this.y = y;
+            this.speed = speed;
+
+            // Load the jellyfish image
+            try {
+            	String imageUr1 = "/Users/sanasingh/Downloads/jelly.png";
+            	jellyfishImage = ImageIO.read(new File(imageUr1));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        public void move() {
+            // Move the jellyfish upwards
+            y -= speed;
+
+            // Wrap around to the bottom when the jellyfish goes beyond the top edge
+            if (y < -jellyfishImage.getHeight()) {
+                y = HEIGHT;
+            }
+        }
+
+        public void draw(Graphics g, JComponent component) {
+            // Draw the jellyfish image
+            if (jellyfishImage != null) {
+                g.drawImage(jellyfishImage, x, y, component);
+            }
+        }
+    }
+}
