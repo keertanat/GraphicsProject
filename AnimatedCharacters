@@ -26,8 +26,6 @@ public class UnderwaterMathChallenge {
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
 
-            // ... (existing code)
-
             // Draw SpongeBob and Patrick
             spongeBob.draw(g, this);
             patrick.draw(g, this);
