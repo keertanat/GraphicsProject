@@ -318,7 +318,9 @@ public class UnderwaterMathChallenge {
 		if (userAnswer.equalsIgnoreCase(currentQuestion.getCorrectAnswer())) {
 			// Correct answer
 			JOptionPane.showMessageDialog(frame, "Correct! You earned 1 point.");
-
+			
+			// Start jellyfish animation for correct answer
+	        Jellyfish jellyfish = new Jellyfish(frame.getWidth() / 2, frame.getHeight() - 50, 2);
 			jellyfish.startAnimation();
 
 			score += 1;
