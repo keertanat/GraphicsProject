@@ -114,8 +114,7 @@ public class UnderwaterMathChallenge {
 
 		jellyfish = new Jellyfish(frame.getWidth() / 2, frame.getHeight() - 50, 2);
 		spongeBob = new SpongeBob(frame.getWidth() / 2 - 50, frame.getHeight() - 150, 2);
-	    patrick = new Patrick(frame.getWidth() / 2 - 50, frame.getHeight() - 250, 2);
-
+		patrick = new Patrick(frame.getWidth() / 2 - 50, frame.getHeight() - 250, 2);
 
 	}
 
@@ -314,6 +313,8 @@ public class UnderwaterMathChallenge {
 		} else {
 			// Wrong answer
 			JOptionPane.showMessageDialog(frame, "Wrong answer. No points awarded.");
+			spongeBob.startAnimation();
+			patrick.startAnimation();
 			if (currentQuestionIndex < questionsAndAnswers.size()) {
 				askQuestion(); // Move to the next question
 			} else {
@@ -405,8 +406,7 @@ public class UnderwaterMathChallenge {
 			this.speed = speed;
 // Getting the image to start running across the screen
 			try {
-				spongeBobImage = ImageIO.read(new File(
-						"resources/spongebob.png"));
+				spongeBobImage = ImageIO.read(new File("resources/spongebob.png"));
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -457,8 +457,7 @@ public class UnderwaterMathChallenge {
 // Getting the image to start running across the screen
 
 			try {
-				patrickImage = ImageIO.read(new File(
-						"resources/patrick.png"));
+				patrickImage = ImageIO.read(new File("resources/patrick.png"));
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -501,19 +500,19 @@ public class UnderwaterMathChallenge {
 
 		// Constructor to initialize the jellyfish with initial position and speed
 		public Jellyfish(int x, int y, int speed) {
-            this.x = x;
-            this.y = y;
-            this.speed = speed;
-       
+			this.x = x;
+			this.y = y;
+			this.speed = speed;
 
-        // Method to set the image of the jellyfish
-        try {
-            // Change the image URL to the correct one
-            jellyfishImage = ImageIO.read(new File("resources/jelly.png"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+			// Method to set the image of the jellyfish
+			try {
+				// Change the image URL to the correct one
+				jellyfishImage = ImageIO.read(new File("resources/jelly.png"));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
+
 		// Method to start the animation of the jellyfish
 		public void startAnimation() {
 			// Cancel any existing animation timer to avoid conflicts
