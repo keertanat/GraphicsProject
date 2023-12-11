@@ -6,7 +6,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Timer;
@@ -28,12 +27,10 @@ public class UnderwaterMathChallenge {
 
   private static SpongeBob spongeBob;
   private static Patrick patrick;
-  private static JellyfishAnimation jellyfishAnimation;
-
+  private static Jellyfish jellyfish;
 
 	public static void main(String[] args) {
 		initializeQuestions(); // Initialize the list of questions
-		jellyfishAnimation = new JellyfishAnimation();
 
 		SwingUtilities.invokeLater(() -> initializeGUI());
 
@@ -110,6 +107,9 @@ public class UnderwaterMathChallenge {
 
 	    frame.setFocusable(true);
 	    frame.requestFocusInWindow();
+	    
+	    jellyfish = new Jellyfish(frame.getWidth() / 2, frame.getHeight() - 50, 2);
+	    
 	}
 
 	private static class QuestionPanel extends JPanel {
@@ -214,7 +214,6 @@ public class UnderwaterMathChallenge {
       spongeBob.draw(g, this);
       patrick.draw(g, this);
       jellyfish.draw(g, this);
-      
 
 			// Draw fishes
 			g.setColor(Color.orange);
@@ -298,16 +297,15 @@ public class UnderwaterMathChallenge {
 		if (userAnswer.equalsIgnoreCase(currentQuestion.getCorrectAnswer())) {
 			// Correct answer
 			JOptionPane.showMessageDialog(frame, "Correct! You earned 1 point.");
+			
+			jellyfish.startAnimation();
+			
 			score += 1;
 			if (currentQuestionIndex < questionsAndAnswers.size()) {
 				askQuestion(); // Move to the next question
 			} else {
 				endGame(); // End the game as all questions have been answered
-				
 			}
-			 jellyfishAnimation.setVisible(true);
-			 
-			 
 		} else {
 			// Wrong answer
 			JOptionPane.showMessageDialog(frame, "Wrong answer. No points awarded.");
@@ -486,46 +484,66 @@ private static class SpongeBob {
                 g.drawImage(patrickImage, x, y, component);
             }
         }
- 
+ }
     private static class Jellyfish {
-    	 private int x;
-         private int y;
-         private int speed;
-         private BufferedImage jellyfishImage;
+        private int x; // X-coordinate of the jellyfish
+        private int y; // Y-coordinate of the jellyfish
+        private int speed; // Speed of the jellyfish's upward movement
+        private Image jellyfishImage; // Image representing the jellyfish
+        private Timer animationTimer; // Timer for controlling the animation
 
-         public Jellyfish(int x, int y, int speed) {
-             this.x = x;
-             this.y = y;
-             this.speed = speed;
+        // Constructor to initialize the jellyfish with initial position and speed
+        public Jellyfish(int x, int y, int speed) {
+            this.x = x;
+            this.y = y;
+            this.speed = speed;
+       
 
-             // Load the jellyfish image
-             try {
-                 // Change the image URL to the correct one
-                 String imageURL = "/Users/sanasingh/Downloads/jelly.png";
-                 jellyfishImage = ImageIO.read(new File(imageURL));
-             } catch (IOException e) {
-                 e.printStackTrace();
-             }
-         }
+        // Method to set the image of the jellyfish
+        try {
+            // Change the image URL to the correct one
+            jellyfishImage = ImageIO.read(new File("/Users/sanasingh/Downloads/jelly.png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    
 
-         public void move() {
-             // Move the jellyfish upwards
-             y -= speed;
+        // Method to start the animation of the jellyfish
+        public void startAnimation() {
+            // Cancel any existing animation timer to avoid conflicts
+            if (animationTimer != null) {
+                animationTimer.cancel();
+            }
 
-             // Wrap around to the bottom when the jellyfish goes beyond the top edge
-             if (y < -jellyfishImage.getHeight()) {
-                 y = HEIGHT;
-             }
-         }
+            // Create a new animation timer and schedule it to move the jellyfish every 50 milliseconds
+            animationTimer = new Timer();
+            animationTimer.scheduleAtFixedRate(new TimerTask() {
+                @Override
+                public void run() {
+                    move(); // Move the jellyfish
+                    frame.repaint(); // Repaint the frame to update the display
+                }
+            }, 0, 50);
+        }
 
-         public void draw(Graphics g, JComponent component) {
-             // Draw the jellyfish image
-             if (jellyfishImage != null) {
-                 g.drawImage(jellyfishImage, x, y, component);
-             }
-         }
-     }
-         
+        // Method to move the jellyfish
+        private void move() {
+            // Move the jellyfish upwards based on its speed
+            y -= speed;
+
+            // Check if the jellyfish has moved off the top of the frame
+            if (y < -jellyfishImage.getHeight(null)) {
+                animationTimer.cancel(); // Cancel the animation if the jellyfish is no longer visible
+            }
+        }
+
+        // Method to draw the jellyfish on the frame
+        public void draw(Graphics g, JComponent component) {
+            // Check if the jellyfish image is not null before drawing
+            if (jellyfishImage != null) {
+                g.drawImage(jellyfishImage, x, y, component);
+            }
+        
+    }
+    
   }
-
- 
