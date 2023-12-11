@@ -114,8 +114,7 @@ public class UnderwaterMathChallenge {
 
 		jellyfish = new Jellyfish(frame.getWidth() / 2, frame.getHeight() - 50, 2);
 		spongeBob = new SpongeBob(frame.getWidth() / 2 - 50, frame.getHeight() - 150, 2);
-	    patrick = new Patrick(frame.getWidth() / 2 - 50, frame.getHeight() - 250, 2);
-
+		patrick = new Patrick(frame.getWidth() / 2 - 50, frame.getHeight() - 250, 2);
 
 	}
 
@@ -145,7 +144,7 @@ public class UnderwaterMathChallenge {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			
+
 		}
 
 		public void setQuestion(QuestionAndAnswer question) {
@@ -219,7 +218,6 @@ public class UnderwaterMathChallenge {
 			spongeBob.draw(g, this);
 			patrick.draw(g, this);
 			jellyfish.draw(g, this);
-			
 
 			// Draw fishes
 			g.setColor(Color.orange);
@@ -304,13 +302,7 @@ public class UnderwaterMathChallenge {
 			// Correct answer
 			JOptionPane.showMessageDialog(frame, "Correct! You earned 1 point.");
 
-			// Create a new Jellyfish instance for each correct user 
-			Jellyfish newJellyfish = new Jellyfish
-			Jellyfish(frame.getWidth() / 2, frame.getHeight() - 50, 2);
-			newJellyfish.startAnimation();
-			
-			// Add the new Jellyfish instance to the GUI
-	        ((QuestionPanel) frame.getContentPane().getComponent(0)).addJellyfish(newJellyfish);
+			jellyfish.startAnimation();
 
 			score += 1;
 			if (currentQuestionIndex < questionsAndAnswers.size()) {
@@ -321,6 +313,8 @@ public class UnderwaterMathChallenge {
 		} else {
 			// Wrong answer
 			JOptionPane.showMessageDialog(frame, "Wrong answer. No points awarded.");
+			spongeBob.startAnimation();
+			patrick.startAnimation();
 			if (currentQuestionIndex < questionsAndAnswers.size()) {
 				askQuestion(); // Move to the next question
 			} else {
@@ -412,8 +406,7 @@ public class UnderwaterMathChallenge {
 			this.speed = speed;
 // Getting the image to start running across the screen
 			try {
-				spongeBobImage = ImageIO.read(new File(
-						"resources/spongebob.png"));
+				spongeBobImage = ImageIO.read(new File("resources/spongebob.png"));
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -464,8 +457,7 @@ public class UnderwaterMathChallenge {
 // Getting the image to start running across the screen
 
 			try {
-				patrickImage = ImageIO.read(new File(
-						"resources/patrick.png"));
+				patrickImage = ImageIO.read(new File("resources/patrick.png"));
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -500,6 +492,7 @@ public class UnderwaterMathChallenge {
 	}
 
 	private static class Jellyfish {
+	    private static List<Jellyfish> jellyfishList = new ArrayList<>();
 		private int x; // X-coordinate of the jellyfish
 		private int y; // Y-coordinate of the jellyfish
 		private int speed; // Speed of the jellyfish's upward movement
@@ -508,19 +501,19 @@ public class UnderwaterMathChallenge {
 
 		// Constructor to initialize the jellyfish with initial position and speed
 		public Jellyfish(int x, int y, int speed) {
-            this.x = x;
-            this.y = y;
-            this.speed = speed;
-       
+			this.x = x;
+			this.y = y;
+			this.speed = speed;
 
-        // Method to set the image of the jellyfish
-        try {
-            // Change the image URL to the correct one
-            jellyfishImage = ImageIO.read(new File("resources/jelly.png"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+			// Method to set the image of the jellyfish
+			try {
+				// Change the image URL to the correct one
+				jellyfishImage = ImageIO.read(new File("resources/jelly.png"));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
+
 		// Method to start the animation of the jellyfish
 		public void startAnimation() {
 			// Cancel any existing animation timer to avoid conflicts
@@ -538,6 +531,9 @@ public class UnderwaterMathChallenge {
 					frame.repaint(); // Repaint the frame to update the display
 				}
 			}, 0, 50);
+			
+	        jellyfishList.add(this); // Add the current jellyfish instance to the list
+
 		}
 
 		// Method to move the jellyfish
@@ -548,9 +544,18 @@ public class UnderwaterMathChallenge {
 			// Check if the jellyfish has moved off the top of the frame
 			if (y < -jellyfishImage.getHeight(null)) {
 				animationTimer.cancel(); // Cancel the animation if the jellyfish is no longer visible
+	            jellyfishList.remove(this); // Remove the current jellyfish instance from the list
+
 			}
 		}
 
+		 // Method to draw all jellyfish instances on the frame
+	    public static void drawAll(Graphics g, JComponent component) {
+	        for (Jellyfish jellyfish : jellyfishList) {
+	            jellyfish.draw(g, component);
+	        }
+	    }
+		
 		// Method to draw the jellyfish on the frame
 		public void draw(Graphics g, JComponent component) {
 			// Check if the jellyfish image is not null before drawing
